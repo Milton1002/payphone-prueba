@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pagar con PayPhone</title>
+  <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js" type="module"></script>
+  <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    #pp-button {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Realizar Pago con PayPhone</h2>
+  <p><strong>Monto:</strong> $3.15 USD</p>
+
+  <div id="pp-button"></div>
+
+  <script type="module">
+    const transactionId = "pago-" + Date.now(); // ID único por transacción
+
+    const paymentButton = new PPaymentButtonBox({
+      token: "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ",
+      clientTransactionId: transactionId,
+      amount: 315, // Total en centavos (3.15 USD)
+      amountWithoutTax: 200,
+      amountWithTax: 100,
+      tax: 15,
+      currency: "USD",
+      storeId: "53NitpGktk6aA8u2YMlP7g",
+      reference: "Pago por venta Fact#001"
+    });
+
+    paymentButton.render("pp-button");
+  </script>
+
+</body>
+</html>
