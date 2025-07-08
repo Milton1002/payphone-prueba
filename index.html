@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito de Compras</title>
+</head>
+<body>
+  <h2>Mi Carrito</h2>
+  <p>Total a pagar: <strong>$10.00</strong></p>
+
+  <button onclick="iniciarPago()">Pagar con PayPhone</button>
+
+  <script>
+    async function iniciarPago() {
+      const monto = 1000; // en centavos: $10.00 = 1000
+      const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
+      const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
+
+      const data = {
+        amount: monto,
+        amountWithoutTax: monto,
+        tax: 0,
+        clientTransactionId: Date.now().toString(),
+        storeId: storeId,
+        responseUrl: "https://www.macvasquez.com/gracias" // Cambia por tu URL publicada
+      };
+
+      const res = await fetch("https://pay.payphonetodoesposible.com/api/button", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json();
+
+      if (json.paymentUrl) {
+        window.location.href = json.paymentUrl;
+      } else {
+        alert("Error al iniciar pago.");
+      }
+    }
+  </script>
+</body>
+</html>
