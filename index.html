@@ -42,18 +42,10 @@
       margin: 20px 0;
       color: #2c3e50;
     }
-    .error {
-      color: red;
-      font-weight: bold;
-      margin-top: 20px;
-    }
   </style>
 </head>
 <body>
-  <h2>Pago Seguro con PayPhone</h2>
-  <div class="total-amount">Total a pagar: <strong id="totalAmount">$0.00</strong></div>
-
-  <div class="payment-buttons" id="botones">
+    <div class="payment-buttons" id="botones">
     <div class="loader" id="loader">Cargando opciones de pago...</div>
   </div>
 
@@ -67,7 +59,7 @@
     document.getElementById('totalAmount').textContent = `$${amountInDollars}`;
 
     const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
-    const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76";
+    const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
     const transactionId = Date.now().toString();
 
     const headers = {
@@ -98,15 +90,26 @@
       const container = document.getElementById("botones");
       container.innerHTML = ''; // Limpiar el loader
 
-      if (data.payWithCard) {
-        const btnCard = document.createElement("a");
-        btnCard.className = "payment-button";
-        btnCard.href = data.payWithCard;
-        btnCard.innerHTML = '<i class="far fa-credit-card"></i> Pagar con Tarjeta';
-        btnCard.target = "_blank";
-        container.appendChild(btnCard);
+      if (data.payWithPayPhone || data.payWithCard) {
+        if (data.payWithPayPhone) {
+          const btnPhone = document.createElement("a");
+          btnPhone.className = "payment-button";
+          btnPhone.href = data.payWithPayPhone;
+          btnPhone.innerHTML = '<i class="fas fa-mobile-alt"></i> Pagar con PayPhone App';
+          btnPhone.target = "_blank";
+          container.appendChild(btnPhone);
+        }
+
+        if (data.payWithCard) {
+          const btnCard = document.createElement("a");
+          btnCard.className = "payment-button";
+          btnCard.href = data.payWithCard;
+          btnCard.innerHTML = '<i class="far fa-credit-card"></i> Pagar con Tarjeta';
+          btnCard.target = "_blank";
+          container.appendChild(btnCard);
+        }
       } else {
-        container.innerHTML = '<div class="error">⚠️ Error al generar enlace de pago con tarjeta. Por favor intente nuevamente.</div>';
+        container.innerHTML = '<div class="error">⚠️ Error al generar enlaces de pago. Por favor intente nuevamente.</div>';
       }
     })
     .catch(error => {
