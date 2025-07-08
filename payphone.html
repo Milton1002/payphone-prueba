@@ -2,62 +2,122 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pago con PayPhone</title>
   <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"></script>
   <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 30px;
+      margin: 0;
+      padding: 20px;
       background-color: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .payment-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
     }
 
     h2 {
       color: #333;
+      margin-bottom: 20px;
     }
 
     #montoDisplay {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
       color: #0066cc;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       display: block;
+    }
+
+    .payphone-button-container {
+      margin-top: 20px;
+    }
+
+    .back-button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #6e8efb;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #5a7df4;
     }
   </style>
 </head>
 <body>
-  <h2>Pagar con Tarjeta (PayPhone)</h2>
-  <span id="montoDisplay">$0.00</span>
-
-  <div
-    class="payphone-button"
-    data-token="OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"
-    data-amount="0"
-    data-amount-with-tax="0"
-    data-tax="0"
-    data-reference="Pago en MACVASQUEZ"
-    data-currency="USD"
-    data-clienttransactionid=""
-    data-storeid="b9877bb5-16ef-4d29-84d7-f71d6e93b76e"
-  ></div>
+  <div class="payment-container">
+    <h2>Pagar con Tarjeta</h2>
+    <span id="montoDisplay">$0.00</span>
+    
+    <div class="payphone-button-container">
+      <div
+        class="payphone-button"
+        data-token="OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"
+        data-amount="0"
+        data-amount-with-tax="0"
+        data-tax="0"
+        data-reference="Pago en MACVASQUEZ"
+        data-currency="USD"
+        data-clienttransactionid=""
+        data-storeid="b9877bb5-16ef-4d29-84d7-f71d6e93b76e"
+      ></div>
+    </div>
+    
+    <a href="#" class="back-button" onclick="window.parent.postMessage('closePayphone', '*')">Volver al carrito</a>
+  </div>
 
   <script>
+    // Obtener parámetros de la URL
     const params = new URLSearchParams(window.location.search);
     const amount = parseInt(params.get("monto") || "0");
 
+    // Validar que el monto sea válido
+    if (isNaN(amount) || amount <= 0) {
+      document.getElementById("montoDisplay").textContent = "Monto no válido";
+      return;
+    }
+
+    // Calcular impuestos (15% de IVA como ejemplo)
     const amountWithTax = Math.round(amount / 1.15);
     const tax = amount - amountWithTax;
 
     // Mostrar en pantalla
     document.getElementById("montoDisplay").textContent = "$" + (amount / 100).toFixed(2);
 
-    // Establecer los datos dinámicamente
+    // Configurar el botón de PayPhone
     const payphoneBtn = document.querySelector(".payphone-button");
     payphoneBtn.dataset.amount = amount;
     payphoneBtn.dataset.amountWithTax = amountWithTax;
     payphoneBtn.dataset.tax = tax;
     payphoneBtn.dataset.clienttransactionid = "pago-" + Date.now();
+
+    // Manejar mensajes desde el iframe padre
+    window.addEventListener('message', function(event) {
+      if (event.data === 'closePayphone') {
+        // Aquí podrías redirigir o cerrar el iframe
+        // En este caso, el botón "Volver" ya maneja esto
+      }
+    });
   </script>
 </body>
 </html>
