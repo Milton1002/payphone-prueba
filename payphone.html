@@ -4,9 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pago con PayPhone | MACVASQUEZ</title>
-  <!-- Cargar SDK de PayPhone -->
-  <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"></script>
-  <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
+  <!-- Precargar recursos -->
+  <link rel="preconnect" href="https://cdn.payphonetodoesposible.com">
+  <link rel="dns-prefetch" href="https://cdn.payphonetodoesposible.com">
+  
+  <!-- Cargar SDK de PayPhone con fallback -->
+  <script>
+    function loadPayphoneSDK() {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    function loadPayphoneCSS() {
+      return new Promise((resolve, reject) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css';
+        link.onload = resolve;
+        link.onerror = reject;
+        document.head.appendChild(link);
+      });
+    }
+  </script>
   
   <style>
     body {
@@ -63,6 +87,22 @@
       100% { transform: rotate(360deg); }
     }
     
+    .error-message {
+      color: #e74c3c;
+      margin: 20px 0;
+    }
+    
+    .retry-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
     .back-button {
       margin-top: 20px;
       padding: 10px 20px;
@@ -82,6 +122,10 @@
     
     <div class="payphone-button-container">
       <div id="loader" class="loader"></div>
+      <div id="errorContainer" style="display: none;">
+        <p class="error-message">No se pudo cargar el sistema de pago</p>
+        <button class="retry-button" onclick="window.location.reload()">Reintentar</button>
+      </div>
       <div
         id="payphoneButton"
         class="payphone-button"
@@ -106,74 +150,88 @@
     // Mostrar loader inicialmente
     document.getElementById('loader').style.display = 'block';
     
-    // Función para inicializar el botón de PayPhone
-    function initPayphoneButton() {
-      // Obtener parámetros de la URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const amountParam = urlParams.get('monto');
-      
-      // Validar y convertir el monto
-      const amount = amountParam ? parseInt(amountParam) : 0;
-      
-      if (isNaN(amount) || amount <= 0) {
-        document.getElementById('montoDisplay').textContent = 'Monto inválido';
-        document.getElementById('loader').style.display = 'none';
-        return;
-      }
-      
-      // Mostrar monto formateado
-      document.getElementById('montoDisplay').textContent = '$' + (amount / 100).toFixed(2);
-      
-      // Configurar el botón de PayPhone
-      const payphoneBtn = document.getElementById('payphoneButton');
-      
-      // Calcular valores para impuestos (12% IVA como ejemplo)
-      const amountWithTax = Math.round(amount / 1.12);
-      const tax = amount - amountWithTax;
-      
-      // Asignar valores dinámicos
-      payphoneBtn.dataset.amount = amount;
-      payphoneBtn.dataset.amountWithTax = amountWithTax;
-      payphoneBtn.dataset.tax = tax;
-      payphoneBtn.dataset.clienttransactionid = 'MACV-' + Date.now();
-      
-      // Mostrar el botón y ocultar el loader
-      payphoneBtn.style.display = 'block';
+    // Función para mostrar error
+    function showError() {
       document.getElementById('loader').style.display = 'none';
-      
-      // Escuchar eventos de PayPhone
-      window.addEventListener('paymentCompleted', function(event) {
-        console.log('Pago completado:', event.detail);
-        window.parent.postMessage({
-          type: 'paymentCompleted',
-          data: event.detail
-        }, '*');
-      });
-      
-      window.addEventListener('paymentCancelled', function(event) {
-        console.log('Pago cancelado:', event.detail);
-        window.parent.postMessage({
-          type: 'paymentCancelled',
-          data: event.detail
-        }, '*');
-      });
+      document.getElementById('payphoneButton').style.display = 'none';
+      document.getElementById('errorContainer').style.display = 'block';
     }
     
-    // Inicializar cuando el SDK esté listo
-    if (window.PayphoneButton) {
-      initPayphoneButton();
-    } else {
-      document.addEventListener('payphone-sdk-ready', initPayphoneButton);
-    }
-    
-    // Manejar errores de carga del SDK
-    setTimeout(() => {
-      if (!window.PayphoneButton) {
+    // Función para inicializar el botón de PayPhone
+    async function initPayphone() {
+      try {
+        // 1. Cargar SDK y CSS
+        await Promise.all([
+          loadPayphoneSDK(),
+          loadPayphoneCSS()
+        ]);
+        
+        // 2. Verificar que el SDK se cargó correctamente
+        if (!window.PayphoneButton) {
+          throw new Error('PayphoneButton no está disponible');
+        }
+        
+        // 3. Obtener parámetros de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const amountParam = urlParams.get('monto');
+        
+        // 4. Validar y convertir el monto
+        const amount = amountParam ? parseInt(amountParam) : 0;
+        
+        if (isNaN(amount) || amount <= 0) {
+          document.getElementById('montoDisplay').textContent = 'Monto inválido';
+          throw new Error('Monto inválido');
+        }
+        
+        // 5. Mostrar monto formateado
+        document.getElementById('montoDisplay').textContent = '$' + (amount / 100).toFixed(2);
+        
+        // 6. Configurar el botón de PayPhone
+        const payphoneBtn = document.getElementById('payphoneButton');
+        
+        // Calcular valores para impuestos (12% IVA como ejemplo)
+        const amountWithTax = Math.round(amount / 1.12);
+        const tax = amount - amountWithTax;
+        
+        // Asignar valores dinámicos
+        payphoneBtn.dataset.amount = amount;
+        payphoneBtn.dataset.amountWithTax = amountWithTax;
+        payphoneBtn.dataset.tax = tax;
+        payphoneBtn.dataset.clienttransactionid = 'MACV-' + Date.now();
+        
+        // 7. Mostrar el botón y ocultar el loader
+        payphoneBtn.style.display = 'block';
         document.getElementById('loader').style.display = 'none';
-        document.getElementById('montoDisplay').textContent = 'Error al cargar PayPhone';
-        console.error('El SDK de PayPhone no se cargó correctamente');
+        
+        // 8. Escuchar eventos de PayPhone
+        window.addEventListener('paymentCompleted', function(event) {
+          console.log('Pago completado:', event.detail);
+          if (window.parent) {
+            window.parent.postMessage({
+              type: 'paymentCompleted',
+              data: event.detail
+            }, '*');
+          }
+        });
+        
+        window.addEventListener('paymentCancelled', function(event) {
+          console.log('Pago cancelado:', event.detail);
+          if (window.parent) {
+            window.parent.postMessage({
+              type: 'paymentCancelled',
+              data: event.detail
+            }, '*');
+          }
+        });
+        
+      } catch (error) {
+        console.error('Error al inicializar PayPhone:', error);
+        showError();
       }
-    }, 5000);
+    }
+    
+    // Iniciar el proceso
+    initPayphone();
   </script>
 </body>
 </html>
