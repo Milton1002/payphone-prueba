@@ -2,29 +2,34 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Pago PayPhone</title>
+  <title>Pago con PayPhone</title>
   <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js" type="module"></script>
   <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
 </head>
 <body style="font-family: sans-serif; text-align: center; padding: 30px;">
   <h2>Pagar con Tarjeta (PayPhone)</h2>
-  <p>Monto: <strong>$3.15</strong></p>
-
+  <p>Monto: <strong id="montoDisplay">$0.00</strong></p>
   <div id="pp-button"></div>
 
   <script type="module">
-    const transactionId = "pago-" + Date.now();
+    // Obtener monto desde URL (query string)
+    const params = new URLSearchParams(window.location.search);
+    const monto = parseInt(params.get("monto") || "0");
 
+    // Mostrar en pantalla
+    document.getElementById("montoDisplay").textContent = "$" + (monto / 100).toFixed(2);
+
+    // Inicializar botón de pago
     const paymentButton = new PPaymentButtonBox({
       token: "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ",
-      clientTransactionId: transactionId,
-      amount: 315,
-      amountWithoutTax: 200,
-      amountWithTax: 100,
-      tax: 15,
+      clientTransactionId: "pago-" + Date.now(),
+      amount: monto,
+      amountWithoutTax: monto - Math.floor(monto * 0.12), // Aproximado sin IVA
+      amountWithTax: Math.floor(monto * 0.12),
+      tax: Math.floor(monto * 0.12),
       currency: "USD",
       storeId: "b9877bb5-16ef-4d29-84d7-f71d6e93b76e",
-      reference: "Pago desde Google Sites"
+      reference: "Pago en MACVASQUEZ"
     });
 
     paymentButton.render("pp-button");
