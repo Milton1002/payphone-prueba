@@ -3,73 +3,166 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pago con PayPhone</title>
-  <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"></script>
-  <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
+  <title>Pago con PayPhone | MACVASQUEZ</title>
+  <!-- Carga desde el CDN oficial de PayPhone con integridad SRI -->
+  <script 
+    src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js" 
+    integrity="sha384-EXAMPLEINTEGRITYHASH" 
+    crossorigin="anonymous">
+  </script>
+  <link 
+    href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" 
+    rel="stylesheet"
+    integrity="sha384-EXAMPLEINTEGRITYHASH"
+    crossorigin="anonymous">
+  
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    :root {
+      --primary-color: #6e8efb;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --text-color: #333;
+      --light-gray: #f5f5f5;
+      --white: #fff;
+    }
+    
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 20px;
-      background-color: #f7f7f7;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-gray);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      padding: 20px;
     }
-
+    
     .payment-container {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 30px;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 40px;
       width: 100%;
       max-width: 500px;
       text-align: center;
+      margin: 20px 0;
     }
-
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    #montoDisplay {
-      font-size: 24px;
+    
+    .logo {
       font-weight: bold;
-      color: #0066cc;
-      margin-bottom: 30px;
+      font-size: 24px;
+      color: var(--secondary-color);
+      text-decoration: none;
+      margin-bottom: 20px;
+      display: block;
+      text-transform: uppercase;
+    }
+    
+    h2 {
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    
+    #montoDisplay {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin: 20px 0;
       display: block;
     }
-
+    
     .payphone-button-container {
-      margin-top: 20px;
+      margin: 30px 0;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
+    
+    .payment-methods {
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--text-color);
+    }
+    
+    .payment-methods img {
+      height: 24px;
+      margin: 0 5px;
+      vertical-align: middle;
+    }
+    
     .back-button {
       margin-top: 30px;
-      padding: 10px 20px;
-      background-color: #6e8efb;
-      color: white;
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: var(--white);
       border: none;
-      border-radius: 5px;
+      border-radius: 50px;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 600;
       text-decoration: none;
       display: inline-block;
+      transition: all 0.3s ease;
     }
-
+    
     .back-button:hover {
-      background-color: #5a7df4;
+      background-color: #557cf3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .loader {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary-color);
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .security-badge {
+      margin-top: 30px;
+      font-size: 12px;
+      color: var(--text-color);
+    }
+    
+    @media (max-width: 600px) {
+      .payment-container {
+        padding: 30px 20px;
+      }
+      
+      h2 {
+        font-size: 20px;
+      }
+      
+      #montoDisplay {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="payment-container">
-    <h2>Pagar con Tarjeta</h2>
+    <a href="#" class="logo" onclick="window.parent.postMessage('closePayphone', '*')">MACVASQUEZ</a>
+    <h2>Pago Seguro con Tarjeta</h2>
     <span id="montoDisplay">$0.00</span>
     
     <div class="payphone-button-container">
+      <div id="loader" class="loader"></div>
       <div
         class="payphone-button"
         data-token="OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"
@@ -80,42 +173,100 @@
         data-currency="USD"
         data-clienttransactionid=""
         data-storeid="b9877bb5-16ef-4d29-84d7-f71d6e93b76e"
+        style="display: none;"
       ></div>
     </div>
     
-    <a href="#" class="back-button" onclick="window.parent.postMessage('closePayphone', '*')">Volver al carrito</a>
+    <div class="payment-methods">
+      <span>Aceptamos:</span>
+      <img src="https://cdn.payphonetodoesposible.com/icons/visa.svg" alt="Visa">
+      <img src="https://cdn.payphonetodoesposible.com/icons/mastercard.svg" alt="Mastercard">
+      <img src="https://cdn.payphonetodoesposible.com/icons/american-express.svg" alt="American Express">
+      <img src="https://cdn.payphonetodoesposible.com/icons/diners-club.svg" alt="Diners Club">
+    </div>
+    
+    <div class="security-badge">
+      <i class="fas fa-lock"></i> Pago 100% seguro mediante PayPhone
+    </div>
+    
+    <a href="#" class="back-button" onclick="window.parent.postMessage('closePayphone', '*')">
+      <i class="fas fa-arrow-left"></i> Volver al carrito
+    </a>
   </div>
 
+  <!-- Font Awesome para iconos -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
   <script>
+    // Mostrar loader mientras se carga PayPhone
+    document.getElementById('loader').style.display = 'block';
+    
     // Obtener parámetros de la URL
     const params = new URLSearchParams(window.location.search);
     const amount = parseInt(params.get("monto") || "0");
+    const transactionId = "MACV-" + Date.now();
 
     // Validar que el monto sea válido
     if (isNaN(amount) || amount <= 0) {
       document.getElementById("montoDisplay").textContent = "Monto no válido";
+      document.getElementById('loader').style.display = 'none';
       return;
     }
 
-    // Calcular impuestos (15% de IVA como ejemplo)
-    const amountWithTax = Math.round(amount / 1.15);
-    const tax = amount - amountWithTax;
-
-    // Mostrar en pantalla
+    // Mostrar monto formateado
     document.getElementById("montoDisplay").textContent = "$" + (amount / 100).toFixed(2);
 
-    // Configurar el botón de PayPhone
-    const payphoneBtn = document.querySelector(".payphone-button");
-    payphoneBtn.dataset.amount = amount;
-    payphoneBtn.dataset.amountWithTax = amountWithTax;
-    payphoneBtn.dataset.tax = tax;
-    payphoneBtn.dataset.clienttransactionid = "pago-" + Date.now();
+    // Configurar el botón de PayPhone después de que cargue el script
+    function initPayphoneButton() {
+      const payphoneBtn = document.querySelector(".payphone-button");
+      
+      // Calcular impuestos (12% de IVA como ejemplo para Ecuador)
+      const amountWithTax = Math.round(amount / 1.12);
+      const tax = amount - amountWithTax;
+
+      // Configurar datos dinámicos
+      payphoneBtn.dataset.amount = amount;
+      payphoneBtn.dataset.amountWithTax = amountWithTax;
+      payphoneBtn.dataset.tax = tax;
+      payphoneBtn.dataset.clienttransactionid = transactionId;
+      
+      // Mostrar el botón y ocultar el loader
+      payphoneBtn.style.display = "block";
+      document.getElementById('loader').style.display = 'none';
+      
+      // Manejar eventos de PayPhone
+      window.addEventListener('paymentCompleted', function(event) {
+        console.log('Pago completado:', event.detail);
+        window.parent.postMessage({
+          type: 'paymentCompleted',
+          data: event.detail
+        }, '*');
+      });
+      
+      window.addEventListener('paymentCancelled', function(event) {
+        console.log('Pago cancelado:', event.detail);
+        window.parent.postMessage({
+          type: 'paymentCancelled',
+          data: event.detail
+        }, '*');
+      });
+    }
+
+    // Inicializar PayPhone cuando el script esté listo
+    if (window.PayphoneButton) {
+      initPayphoneButton();
+    } else {
+      document.addEventListener('payphone-sdk-ready', initPayphoneButton);
+    }
 
     // Manejar mensajes desde el iframe padre
     window.addEventListener('message', function(event) {
       if (event.data === 'closePayphone') {
-        // Aquí podrías redirigir o cerrar el iframe
-        // En este caso, el botón "Volver" ya maneja esto
+        // Notificar a la página padre que se cerró el iframe
+        window.parent.postMessage({
+          type: 'payphoneClosed',
+          transactionId: transactionId
+        }, '*');
       }
     });
   </script>
