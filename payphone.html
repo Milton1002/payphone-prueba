@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Pago con PayPhone</title>
-
-  <!-- Estilos del botón de PayPhone -->
+  <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js" type="module"></script>
   <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
   <style>
     body {
@@ -38,36 +37,28 @@
   <p>Monto: <strong id="montoDisplay">$0.00</strong></p>
   <div id="pp-button"></div>
 
-  <!-- Script del botón de PayPhone -->
-  <script type="module" src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"></script>
-
   <script type="module">
-    // Obtener el parámetro 'monto' de la URL (en centavos)
     const params = new URLSearchParams(window.location.search);
-    const monto = parseInt(params.get("monto") || "0");
+    const monto = parseInt(params.get("monto") || "0"); // centavos
 
-    // Mostrar el monto formateado en pantalla
+    // Mostrar en pantalla
     document.getElementById("montoDisplay").textContent = "$" + (monto / 100).toFixed(2);
 
-    // Preparar valores de impuesto (12% IVA aproximado)
-    const tax = Math.round(monto * 0.12);
-    const amountWithTax = tax;
-    const amountWithoutTax = monto - tax;
-
-    // Inicializar el botón de pago
+    // Inicializar PayPhone con valores consistentes
     const paymentButton = new PPaymentButtonBox({
       token: "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ",
       clientTransactionId: "pago-" + Date.now(),
       amount: monto,
-      amountWithoutTax: amountWithoutTax,
-      amountWithTax: amountWithTax,
-      tax: tax,
+      amountWithoutTax: 0,
+      amountWithTax: 0,
+      tax: 0,
+      service: 0,
+      tip: 0,
       currency: "USD",
       storeId: "b9877bb5-16ef-4d29-84d7-f71d6e93b76e",
       reference: "Pago en MACVASQUEZ"
     });
 
-    // Renderizar el botón dentro del contenedor
     paymentButton.render("pp-button");
   </script>
 </body>
