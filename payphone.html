@@ -15,43 +15,45 @@
 
     h2 {
       color: #333;
-      margin-bottom: 20px;
     }
 
     #montoDisplay {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
       color: #0066cc;
-      margin-bottom: 30px;
-      display: inline-block;
-    }
-
-    #pp-button {
-      max-width: 400px;
-      margin: 0 auto;
+      margin-bottom: 20px;
+      display: block;
     }
   </style>
 </head>
 <body>
   <h2>Pagar con Tarjeta (PayPhone)</h2>
-  <p>Monto: <strong id="montoDisplay">$0.00</strong></p>
+  <span id="montoDisplay">$0.00</span>
   <div id="pp-button"></div>
 
   <script type="module">
     const params = new URLSearchParams(window.location.search);
-    const monto = parseInt(params.get("monto") || "0"); // centavos
+    const amount = parseInt(params.get("monto") || "0"); // en centavos
 
-    // Mostrar en pantalla
-    document.getElementById("montoDisplay").textContent = "$" + (monto / 100).toFixed(2);
+    // Mostrar el monto
+    document.getElementById("montoDisplay").textContent = "$" + (amount / 100).toFixed(2);
 
-    // Inicializar PayPhone con valores consistentes
+    // Cálculo de impuestos (12% IVA)
+    const amountWithoutTax = Math.round(amount / 1.12);
+    const tax = amount - amountWithoutTax;
+
+    const sum = amountWithoutTax + tax;
+    if (sum !== amount) {
+      console.error("⚠ Error en suma:", sum, "!=", amount);
+    }
+
     const paymentButton = new PPaymentButtonBox({
       token: "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ",
       clientTransactionId: "pago-" + Date.now(),
-      amount: monto,
-      amountWithoutTax: 0,
-      amountWithTax: 0,
-      tax: 0,
+      amount: amount,
+      amountWithoutTax: amountWithoutTax,
+      tax: tax,
+      amountWithTax: tax,
       service: 0,
       tip: 0,
       currency: "USD",
