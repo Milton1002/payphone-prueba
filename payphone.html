@@ -29,40 +29,35 @@
 <body>
   <h2>Pagar con Tarjeta (PayPhone)</h2>
   <span id="montoDisplay">$0.00</span>
-  <div id="pp-button"></div>
+
+  <div
+    class="payphone-button"
+    data-token="OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"
+    data-amount="0"
+    data-amount-with-tax="0"
+    data-tax="0"
+    data-reference="Pago en MACVASQUEZ"
+    data-currency="USD"
+    data-clienttransactionid=""
+    data-storeid="b9877bb5-16ef-4d29-84d7-f71d6e93b76e"
+  ></div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const amount = parseInt(params.get("monto") || "0");
 
-    // Mostrar en pantalla
-    document.getElementById("montoDisplay").textContent = "$" + (amount / 100).toFixed(2);
-
-    // Calcular IVA (15%)
     const amountWithTax = Math.round(amount / 1.15);
     const tax = amount - amountWithTax;
 
-    // Mostrar en consola los valores enviados
-    console.log("▶ MONTO TOTAL:", amount);
-    console.log("▶ BASE IMPONIBLE (amountWithTax):", amountWithTax);
-    console.log("▶ IVA (tax):", tax);
-    console.log("▶ Suma comprobación:", amountWithTax + tax);
+    // Mostrar en pantalla
+    document.getElementById("montoDisplay").textContent = "$" + (amount / 100).toFixed(2);
 
-    const paymentButton = new PPaymentButtonBox({
-      token: "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ",
-      clientTransactionId: "pago-" + Date.now(),
-      amount: amount,
-      amountWithoutTax: 0,
-      amountWithTax: amountWithTax,
-      tax: tax,
-      service: 0,
-      tip: 0,
-      currency: "USD",
-      storeId: "b9877bb5-16ef-4d29-84d7-f71d6e93b76e",
-      reference: "Pago en MACVASQUEZ"
-    });
-
-    paymentButton.render("pp-button");
+    // Establecer los datos dinámicamente
+    const payphoneBtn = document.querySelector(".payphone-button");
+    payphoneBtn.dataset.amount = amount;
+    payphoneBtn.dataset.amountWithTax = amountWithTax;
+    payphoneBtn.dataset.tax = tax;
+    payphoneBtn.dataset.clienttransactionid = "pago-" + Date.now();
   </script>
 </body>
 </html>
