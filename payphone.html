@@ -4,33 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pago con PayPhone | MACVASQUEZ</title>
-  <!-- Precargar recursos -->
+  
+  <!-- Preconexión para mejorar carga -->
   <link rel="preconnect" href="https://cdn.payphonetodoesposible.com">
   <link rel="dns-prefetch" href="https://cdn.payphonetodoesposible.com">
-  
-  <!-- Cargar SDK de PayPhone con fallback -->
-  <script>
-    function loadPayphoneSDK() {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-    
-    function loadPayphoneCSS() {
-      return new Promise((resolve, reject) => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css';
-        link.onload = resolve;
-        link.onerror = reject;
-        document.head.appendChild(link);
-      });
-    }
-  </script>
   
   <style>
     body {
@@ -67,7 +44,7 @@
       display: block;
     }
     
-    .payphone-button-container {
+    .payment-content {
       margin: 30px 0;
       min-height: 200px;
     }
@@ -90,121 +67,139 @@
     .error-message {
       color: #e74c3c;
       margin: 20px 0;
-    }
-    
-    .retry-button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
       font-weight: bold;
     }
     
-    .back-button {
+    .action-button {
       margin-top: 20px;
-      padding: 10px 20px;
+      padding: 12px 24px;
       background-color: #6e8efb;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .action-button.retry {
+      background-color: #e74c3c;
+    }
+    
+    .manual-payment {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
   <div class="payment-container">
-    <h2>Pagar con Tarjeta</h2>
-    <span id="montoDisplay">$0.00</span>
+    <h2>Pago Seguro con Tarjeta</h2>
+    <span id="montoDisplay">$59.99</span>
     
-    <div class="payphone-button-container">
+    <div class="payment-content">
       <div id="loader" class="loader"></div>
       <div id="errorContainer" style="display: none;">
-        <p class="error-message">No se pudo cargar el sistema de pago</p>
-        <button class="retry-button" onclick="window.location.reload()">Reintentar</button>
+        <p class="error-message">No se pudo cargar el sistema de pago automático</p>
+        <p>Puedes realizar el pago manualmente siguiendo estas instrucciones:</p>
+        <div class="manual-payment" id="manualPayment">
+          <p>1. Transfiere $59.99 a nuestra cuenta PayPhone</p>
+          <p>2. Envía el comprobante a info@macvasquez.com</p>
+          <p>3. Indica el número de pedido: <span id="orderNumber">MACV-${Date.now()}</span></p>
+        </div>
+        <button class="action-button retry" id="retryButton">Reintentar pago automático</button>
+        <button class="action-button" onclick="window.parent.postMessage('closePayphone', '*')">Volver al carrito</button>
       </div>
-      <div
-        id="payphoneButton"
-        class="payphone-button"
-        data-token="OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"
-        data-amount="0"
-        data-amount-with-tax="0"
-        data-tax="0"
-        data-reference="Pago en MACVASQUEZ"
-        data-currency="USD"
-        data-clienttransactionid=""
-        data-storeid="b9877bb5-16ef-4d29-84d7-f71d6e93b76e"
-        style="display: none;"
-      ></div>
+      <div id="payphoneContainer" style="display: none;"></div>
     </div>
-    
-    <button class="back-button" onclick="window.parent.postMessage('closePayphone', '*')">
-      Volver al carrito
-    </button>
   </div>
 
   <script>
+    // Configuración inicial
+    const transactionId = `MACV-${Date.now()}`;
+    const amount = 5999; // Monto en centavos (59.99 USD)
+    
     // Mostrar loader inicialmente
     document.getElementById('loader').style.display = 'block';
+    document.getElementById('montoDisplay').textContent = `$${(amount/100).toFixed(2)}`;
     
-    // Función para mostrar error
-    function showError() {
+    // Función para mostrar opción manual
+    function showManualOption() {
       document.getElementById('loader').style.display = 'none';
-      document.getElementById('payphoneButton').style.display = 'none';
       document.getElementById('errorContainer').style.display = 'block';
+      document.getElementById('manualPayment').style.display = 'block';
+      document.getElementById('orderNumber').textContent = transactionId;
     }
     
-    // Función para inicializar el botón de PayPhone
+    // Función para cargar el SDK de PayPhone
+    function loadPayphoneSDK() {
+      return new Promise((resolve, reject) => {
+        // Verificar si ya está cargado
+        if (window.PayphoneButton) {
+          resolve();
+          return;
+        }
+        
+        // Crear script dinámico
+        const script = document.createElement('script');
+        script.src = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js';
+        
+        // Timeout para detectar fallos
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout al cargar SDK'));
+        }, 10000);
+        
+        script.onload = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+        
+        script.onerror = () => {
+          clearTimeout(timeout);
+          reject(new Error('Error al cargar SDK'));
+        };
+        
+        document.head.appendChild(script);
+      });
+    }
+    
+    // Función para inicializar PayPhone
     async function initPayphone() {
       try {
-        // 1. Cargar SDK y CSS
-        await Promise.all([
-          loadPayphoneSDK(),
-          loadPayphoneCSS()
-        ]);
+        // 1. Cargar SDK
+        await loadPayphoneSDK();
         
-        // 2. Verificar que el SDK se cargó correctamente
+        // 2. Verificar que el SDK está disponible
         if (!window.PayphoneButton) {
-          throw new Error('PayphoneButton no está disponible');
+          throw new Error('PayphoneButton no disponible después de carga');
         }
         
-        // 3. Obtener parámetros de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const amountParam = urlParams.get('monto');
+        // 3. Crear contenedor para el botón
+        const container = document.getElementById('payphoneContainer');
+        container.innerHTML = `
+          <div
+            class="payphone-button"
+            data-token="OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"
+            data-amount="${amount}"
+            data-amount-with-tax="${Math.round(amount/1.12)}"
+            data-tax="${amount - Math.round(amount/1.12)}"
+            data-reference="Pago en MACVASQUEZ"
+            data-currency="USD"
+            data-clienttransactionid="${transactionId}"
+            data-storeid="b9877bb5-16ef-4d29-84d7-f71d6e93b76e"
+          ></div>
+        `;
         
-        // 4. Validar y convertir el monto
-        const amount = amountParam ? parseInt(amountParam) : 0;
-        
-        if (isNaN(amount) || amount <= 0) {
-          document.getElementById('montoDisplay').textContent = 'Monto inválido';
-          throw new Error('Monto inválido');
-        }
-        
-        // 5. Mostrar monto formateado
-        document.getElementById('montoDisplay').textContent = '$' + (amount / 100).toFixed(2);
-        
-        // 6. Configurar el botón de PayPhone
-        const payphoneBtn = document.getElementById('payphoneButton');
-        
-        // Calcular valores para impuestos (12% IVA como ejemplo)
-        const amountWithTax = Math.round(amount / 1.12);
-        const tax = amount - amountWithTax;
-        
-        // Asignar valores dinámicos
-        payphoneBtn.dataset.amount = amount;
-        payphoneBtn.dataset.amountWithTax = amountWithTax;
-        payphoneBtn.dataset.tax = tax;
-        payphoneBtn.dataset.clienttransactionid = 'MACV-' + Date.now();
-        
-        // 7. Mostrar el botón y ocultar el loader
-        payphoneBtn.style.display = 'block';
+        // 4. Ocultar loader y mostrar botón
         document.getElementById('loader').style.display = 'none';
+        container.style.display = 'block';
         
-        // 8. Escuchar eventos de PayPhone
-        window.addEventListener('paymentCompleted', function(event) {
+        // 5. Manejar eventos
+        window.addEventListener('paymentCompleted', (event) => {
           console.log('Pago completado:', event.detail);
           if (window.parent) {
             window.parent.postMessage({
@@ -214,21 +209,18 @@
           }
         });
         
-        window.addEventListener('paymentCancelled', function(event) {
-          console.log('Pago cancelado:', event.detail);
-          if (window.parent) {
-            window.parent.postMessage({
-              type: 'paymentCancelled',
-              data: event.detail
-            }, '*');
-          }
-        });
-        
       } catch (error) {
         console.error('Error al inicializar PayPhone:', error);
-        showError();
+        showManualOption();
       }
     }
+    
+    // Botón de reintento
+    document.getElementById('retryButton').addEventListener('click', () => {
+      document.getElementById('errorContainer').style.display = 'none';
+      document.getElementById('loader').style.display = 'block';
+      initPayphone();
+    });
     
     // Iniciar el proceso
     initPayphone();
