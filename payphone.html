@@ -6,24 +6,24 @@
   <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js" type="module"></script>
   <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
   <style>
-    body {{
+    body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 30px;
       background-color: #f7f7f7;
-    }}
+    }
 
-    h2 {{
+    h2 {
       color: #333;
-    }}
+    }
 
-    #montoDisplay {{
+    #montoDisplay {
       font-size: 22px;
       font-weight: bold;
       color: #0066cc;
       margin-bottom: 20px;
       display: block;
-    }}
+    }
   </style>
 </head>
 <body>
@@ -35,26 +35,32 @@
     const params = new URLSearchParams(window.location.search);
     const amount = parseInt(params.get("monto") || "0");
 
-    // Mostrar el monto en pantalla
+    // Mostrar en pantalla
     document.getElementById("montoDisplay").textContent = "$" + (amount / 100).toFixed(2);
 
-    // Cálculo de impuestos (IVA 15%)
+    // Calcular IVA (15%)
     const amountWithTax = Math.round(amount / 1.15);
     const tax = amount - amountWithTax;
 
-    const paymentButton = new PPaymentButtonBox({{
+    // Mostrar en consola los valores enviados
+    console.log("▶ MONTO TOTAL:", amount);
+    console.log("▶ BASE IMPONIBLE (amountWithTax):", amountWithTax);
+    console.log("▶ IVA (tax):", tax);
+    console.log("▶ Suma comprobación:", amountWithTax + tax);
+
+    const paymentButton = new PPaymentButtonBox({
       token: "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ",
       clientTransactionId: "pago-" + Date.now(),
       amount: amount,
-      amountWithoutTax: 0,          // ⚠️ NO USAR, causa conflicto si llenas los otros dos
-      amountWithTax: amountWithTax, // Base imponible
-      tax: tax,                     // IVA
+      amountWithoutTax: 0,
+      amountWithTax: amountWithTax,
+      tax: tax,
       service: 0,
       tip: 0,
       currency: "USD",
       storeId: "b9877bb5-16ef-4d29-84d7-f71d6e93b76e",
       reference: "Pago en MACVASQUEZ"
-    }});
+    });
 
     paymentButton.render("pp-button");
   </script>
