@@ -19,16 +19,10 @@
       background-color: #fff;
       border-radius: 10px;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-      text-align: left;
+      text-align: center;
       max-width: 800px;
       margin-left: auto;
       margin-right: auto;
-    }
-    pre {
-      background: #f0f0f0;
-      padding: 15px;
-      border-radius: 8px;
-      overflow-x: auto;
     }
     .btn-volver {
       display: inline-block;
@@ -63,7 +57,7 @@
     const id = getQueryVariable("id");
     const clientTxId = getQueryVariable("clientTransactionId");
 
-    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"; // 🛠️ Reemplaza con tu token sandbox real
+    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"; // Reemplaza con tu token real
 
     fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
       method: "POST",
@@ -79,18 +73,25 @@
     .then(response => response.json())
     .then(data => {
       const contenedor = document.getElementById("respuesta");
-        if (data.transactionStatus === "Approved") {
-          const email = data.email || "tu correo";
-        
-          contenedor.innerHTML = `
-            <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
-            <p>Gracias por tu compra. En unos minutos recibirás un correo en: <strong>${email}</strong> con tus claves de acceso.</p>
-          `;
-        } else {
+
+      if (data.transactionStatus === "Approved") {
+        const email = data.email || "cliente";
+
+        contenedor.innerHTML = `
+          <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
+          <p>Gracias por tu compra. En unos minutos recibirás un correo en: <strong>${email}</strong> con tus claves de acceso.</p>
+        `;
+
+        // Enviar datos a Google Apps Script
+        fetch("https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+      } else {
         contenedor.innerHTML = `
           <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
-          <p>Hubo un problema con tu transacción:</p>
-          <pre>${JSON.stringify(data, null, 2)}</pre>
+          <p>Hubo un problema con tu transacción. Por favor, verifica los datos o contáctanos.</p>
         `;
       }
     })
