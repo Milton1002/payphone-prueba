@@ -39,21 +39,16 @@
       return urlParams.get(param);
     }
 
-    // Obtener el monto desde la URL (?monto=...)
     const montoStr = getQueryParam("monto") || "3.15";
     const monto = parseFloat(montoStr);
-    const montoCentavos = Math.round(monto * 100);
+    const amount = Math.round(monto * 100); // total en centavos
 
-    // Mostrar monto en pantalla
+    // Cálculo correcto de IVA incluido
+    const tax = Math.round((amount * 15) / 115); // 15% de IVA sobre monto total
+    const amountWithoutTax = amount - tax;
+
+    // Mostrar en pantalla
     document.getElementById("montoDisplay").textContent = monto.toFixed(2);
-
-    // Descomposición del monto si incluye IVA del 15%
-    const iva = monto / 1.15 * 0.15;
-    const sinIva = monto - iva;
-
-    const tax = Math.round(iva * 100);                  // en centavos
-    const amountWithoutTax = Math.round(sinIva * 100);  // en centavos
-    const amount = tax + amountWithoutTax;
 
     const transactionId = "pago-" + Date.now();
 
