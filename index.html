@@ -6,13 +6,13 @@
 </head>
 <body>
   <h2>Mi Carrito</h2>
-  <p>Total a pagar: <strong>$10.00</strong></p>
+  <p>Total a pagar: <strong>$50.00</strong></p>
 
   <button onclick="iniciarPago()">Pagar con PayPhone</button>
 
   <script>
     async function iniciarPago() {
-      const monto = 1000; // En centavos ($10.00 = 1000)
+      const monto = 5000; // En centavos ($10.00 = 1000)
       const scriptURL = "https://script.google.com/macros/s/AKfycbzZkrxEQRQBV4pttckxeryGqgsImxM-HrdtPvOrHeIvcQfgU3SVpUS_iO6g4Tibb7mioA/exec"; // ← Reemplaza esto con tu URL de Apps Script
 
       try {
