@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Pago con PayPhone</title>
-  <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js" type="module"></script>
+  <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"></script>
   <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
   <style>
     body {
@@ -31,7 +31,7 @@
   <span id="montoDisplay">$0.00</span>
   <div id="pp-button"></div>
 
-  <script type="module">
+  <script>
     const params = new URLSearchParams(window.location.search);
     const amount = parseInt(params.get("monto") || "0");
 
