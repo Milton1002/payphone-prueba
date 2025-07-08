@@ -3,17 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <title>Pago con PayPhone - Botón oficial</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .payment-buttons {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+    }
+    .payment-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #00a6e8;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      width: 250px;
+      transition: all 0.3s ease;
+    }
+    .payment-button:hover {
+      background-color: #0088c6;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .payment-button i {
+      margin-right: 10px;
+    }
+    .total-amount {
+      font-size: 24px;
+      margin: 20px 0;
+      color: #2c3e50;
+    }
+  </style>
 </head>
 <body>
-  <h2>Carrito de Compras</h2>
-  <p>Total: <strong>$10.00</strong></p>
+  <h2>Pago Seguro con PayPhone</h2>
+  <div class="total-amount">Total a pagar: <strong id="totalAmount">$0.00</strong></div>
 
-  <div id="botones"></div>
+  <div class="payment-buttons" id="botones">
+    <div class="loader" id="loader">Cargando opciones de pago...</div>
+  </div>
 
   <script>
+    // Obtener el monto de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    let monto = urlParams.get('monto') || 1000; // Valor por defecto 1000 centavos ($10.00) si no hay parámetro
+    
+    // Mostrar el monto en formato dólares
+    const amountInDollars = (monto / 100).toFixed(2);
+    document.getElementById('totalAmount').textContent = `$${amountInDollars}`;
+
     const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
     const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
-    const monto = 1000; // $10.00 en centavos
     const transactionId = Date.now().toString();
 
     const headers = {
@@ -22,11 +71,11 @@
     };
 
     const data = {
-      amount: monto,
-      amountWithoutTax: monto,
+      amount: parseInt(monto),
+      amountWithoutTax: parseInt(monto),
       amountWithTax: 0,
       tax: 0,
-      reference: "Pago prueba GitHub",
+      reference: "Compra en MACVASQUEZ",
       currency: "USD",
       clientTransactionId: transactionId,
       storeId: storeId,
@@ -42,31 +91,42 @@
     .then(data => {
       console.log(data);
       const container = document.getElementById("botones");
+      container.innerHTML = ''; // Limpiar el loader
 
       if (data.payWithPayPhone || data.payWithCard) {
         if (data.payWithPayPhone) {
           const btnPhone = document.createElement("a");
+          btnPhone.className = "payment-button";
           btnPhone.href = data.payWithPayPhone;
-          btnPhone.textContent = "Pagar con PayPhone App";
-          btnPhone.style.marginRight = "20px";
+          btnPhone.innerHTML = '<i class="fas fa-mobile-alt"></i> Pagar con PayPhone App';
           btnPhone.target = "_blank";
           container.appendChild(btnPhone);
         }
 
         if (data.payWithCard) {
           const btnCard = document.createElement("a");
+          btnCard.className = "payment-button";
           btnCard.href = data.payWithCard;
-          btnCard.textContent = "Pagar con Tarjeta";
+          btnCard.innerHTML = '<i class="far fa-credit-card"></i> Pagar con Tarjeta';
           btnCard.target = "_blank";
           container.appendChild(btnCard);
         }
       } else {
-        container.innerText = "⚠️ Error al generar enlaces de pago:\n" + JSON.stringify(data);
+        container.innerHTML = '<div class="error">⚠️ Error al generar enlaces de pago. Por favor intente nuevamente.</div>';
       }
     })
     .catch(error => {
-      document.getElementById("botones").innerText = "❌ Error al conectar con PayPhone: " + error;
+      document.getElementById("botones").innerHTML = '<div class="error">❌ Error al conectar con PayPhone. Por favor revise su conexión.</div>';
+      console.error(error);
     });
+
+    // Agregar Font Awesome para los iconos (si no están ya incluidos)
+    if (!document.querySelector('link[href*="font-awesome"]')) {
+      const faLink = document.createElement('link');
+      faLink.rel = 'stylesheet';
+      faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+      document.head.appendChild(faLink);
+    }
   </script>
 </body>
 </html>
