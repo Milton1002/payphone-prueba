@@ -79,13 +79,14 @@
     .then(response => response.json())
     .then(data => {
       const contenedor = document.getElementById("respuesta");
-      if (data.transactionStatus === "Approved") {
-        contenedor.innerHTML = `
-          <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
-          <p>Tu compra fue exitosa. Aquí están los detalles:</p>
-          <pre>${JSON.stringify(data, null, 2)}</pre>
-        `;
-      } else {
+        if (data.transactionStatus === "Approved") {
+          const email = data.email || "tu correo";
+        
+          contenedor.innerHTML = `
+            <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
+            <p>Gracias por tu compra. En unos minutos recibirás un correo en: <strong>${email}</strong> con tus claves de acceso.</p>
+          `;
+        } else {
         contenedor.innerHTML = `
           <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
           <p>Hubo un problema con tu transacción:</p>
