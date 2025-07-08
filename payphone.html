@@ -2,228 +2,44 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pago con PayPhone | MACVASQUEZ</title>
-  
-  <!-- Preconexión para mejorar carga -->
-  <link rel="preconnect" href="https://cdn.payphonetodoesposible.com">
-  <link rel="dns-prefetch" href="https://cdn.payphonetodoesposible.com">
-  
+  <title>Pagar con PayPhone</title>
+  <script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js" type="module"></script>
+  <link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
       padding: 20px;
-      background-color: #f7f7f7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    
-    .payment-container {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 30px;
-      width: 100%;
-      max-width: 500px;
       text-align: center;
     }
-    
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-    
-    #montoDisplay {
-      font-size: 24px;
-      font-weight: bold;
-      color: #0066cc;
-      margin-bottom: 30px;
-      display: block;
-    }
-    
-    .payment-content {
-      margin: 30px 0;
-      min-height: 200px;
-    }
-    
-    .loader {
-      border: 4px solid rgba(0,0,0,0.1);
-      border-radius: 50%;
-      border-top: 4px solid #0066cc;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .error-message {
-      color: #e74c3c;
-      margin: 20px 0;
-      font-weight: bold;
-    }
-    
-    .action-button {
+    #pp-button {
       margin-top: 20px;
-      padding: 12px 24px;
-      background-color: #6e8efb;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      text-decoration: none;
-      display: inline-block;
-    }
-    
-    .action-button.retry {
-      background-color: #e74c3c;
-    }
-    
-    .manual-payment {
-      display: none;
-      margin-top: 20px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <div class="payment-container">
-    <h2>Pago Seguro con Tarjeta</h2>
-    <span id="montoDisplay">$59.99</span>
-    
-    <div class="payment-content">
-      <div id="loader" class="loader"></div>
-      <div id="errorContainer" style="display: none;">
-        <p class="error-message">No se pudo cargar el sistema de pago automático</p>
-        <p>Puedes realizar el pago manualmente siguiendo estas instrucciones:</p>
-        <div class="manual-payment" id="manualPayment">
-          <p>1. Transfiere $59.99 a nuestra cuenta PayPhone</p>
-          <p>2. Envía el comprobante a info@macvasquez.com</p>
-          <p>3. Indica el número de pedido: <span id="orderNumber">MACV-${Date.now()}</span></p>
-        </div>
-        <button class="action-button retry" id="retryButton">Reintentar pago automático</button>
-        <button class="action-button" onclick="window.parent.postMessage('closePayphone', '*')">Volver al carrito</button>
-      </div>
-      <div id="payphoneContainer" style="display: none;"></div>
-    </div>
-  </div>
 
-  <script>
-    // Configuración inicial
-    const transactionId = `MACV-${Date.now()}`;
-    const amount = 5999; // Monto en centavos (59.99 USD)
-    
-    // Mostrar loader inicialmente
-    document.getElementById('loader').style.display = 'block';
-    document.getElementById('montoDisplay').textContent = `$${(amount/100).toFixed(2)}`;
-    
-    // Función para mostrar opción manual
-    function showManualOption() {
-      document.getElementById('loader').style.display = 'none';
-      document.getElementById('errorContainer').style.display = 'block';
-      document.getElementById('manualPayment').style.display = 'block';
-      document.getElementById('orderNumber').textContent = transactionId;
-    }
-    
-    // Función para cargar el SDK de PayPhone
-    function loadPayphoneSDK() {
-      return new Promise((resolve, reject) => {
-        // Verificar si ya está cargado
-        if (window.PayphoneButton) {
-          resolve();
-          return;
-        }
-        
-        // Crear script dinámico
-        const script = document.createElement('script');
-        script.src = 'https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js';
-        
-        // Timeout para detectar fallos
-        const timeout = setTimeout(() => {
-          reject(new Error('Timeout al cargar SDK'));
-        }, 10000);
-        
-        script.onload = () => {
-          clearTimeout(timeout);
-          resolve();
-        };
-        
-        script.onerror = () => {
-          clearTimeout(timeout);
-          reject(new Error('Error al cargar SDK'));
-        };
-        
-        document.head.appendChild(script);
-      });
-    }
-    
-    // Función para inicializar PayPhone
-    async function initPayphone() {
-      try {
-        // 1. Cargar SDK
-        await loadPayphoneSDK();
-        
-        // 2. Verificar que el SDK está disponible
-        if (!window.PayphoneButton) {
-          throw new Error('PayphoneButton no disponible después de carga');
-        }
-        
-        // 3. Crear contenedor para el botón
-        const container = document.getElementById('payphoneContainer');
-        container.innerHTML = `
-          <div
-            class="payphone-button"
-            data-token="OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"
-            data-amount="${amount}"
-            data-amount-with-tax="${Math.round(amount/1.12)}"
-            data-tax="${amount - Math.round(amount/1.12)}"
-            data-reference="Pago en MACVASQUEZ"
-            data-currency="USD"
-            data-clienttransactionid="${transactionId}"
-            data-storeid="b9877bb5-16ef-4d29-84d7-f71d6e93b76e"
-          ></div>
-        `;
-        
-        // 4. Ocultar loader y mostrar botón
-        document.getElementById('loader').style.display = 'none';
-        container.style.display = 'block';
-        
-        // 5. Manejar eventos
-        window.addEventListener('paymentCompleted', (event) => {
-          console.log('Pago completado:', event.detail);
-          if (window.parent) {
-            window.parent.postMessage({
-              type: 'paymentCompleted',
-              data: event.detail
-            }, '*');
-          }
-        });
-        
-      } catch (error) {
-        console.error('Error al inicializar PayPhone:', error);
-        showManualOption();
-      }
-    }
-    
-    // Botón de reintento
-    document.getElementById('retryButton').addEventListener('click', () => {
-      document.getElementById('errorContainer').style.display = 'none';
-      document.getElementById('loader').style.display = 'block';
-      initPayphone();
+  <h2>Realizar Pago con PayPhone</h2>
+  <p><strong>Monto:</strong> $3.15 USD</p>
+
+  <div id="pp-button"></div>
+
+  <script type="module">
+    const transactionId = "pago-" + Date.now(); // ID único por transacción
+
+    const paymentButton = new PPaymentButtonBox({
+      token: "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ",
+      clientTransactionId: transactionId,
+      amount: 315, // Total en centavos (3.15 USD)
+      amountWithoutTax: 200,
+      amountWithTax: 100,
+      tax: 15,
+      currency: "USD",
+      storeId: "b9877bb5-16ef-4d29-84d7-f71d6e93b76e",
+      reference: "Pago por venta Fact#001"
     });
-    
-    // Iniciar el proceso
-    initPayphone();
+
+    paymentButton.render("pp-button");
   </script>
+
 </body>
 </html>
