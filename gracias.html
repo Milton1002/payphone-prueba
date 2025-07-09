@@ -46,6 +46,9 @@
 
   <div class="respuesta" id="respuesta"></div>
 
+  <!-- Iframe oculto para evitar redirección -->
+  <iframe name="hiddenFrame" style="display:none;"></iframe>
+
   <a class="btn-volver" href="https://www.macvasquez.com">Volver al inicio</a>
 
   <script>
@@ -83,26 +86,25 @@
           <p>Enviando tu información de acceso...</p>
         `;
 
-        // Enviar los datos al Google Apps Script sin redirigir
-        fetch("https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ payload: data })
-        })
-        .then(res => res.text())
-        .then(responseText => {
-          contenedor.innerHTML += `
-            <p style="color:#2980b9; margin-top: 20px;">📧 ¡Clave enviada por correo!</p>
-          `;
-        })
-        .catch(err => {
-          contenedor.innerHTML += `
-            <p style="color:#e67e22;">⚠️ Hubo un error al enviar la información al sistema. Por favor, contáctanos.</p>
-            <pre>${JSON.stringify(err, null, 2)}</pre>
-          `;
-        });
+        // Crear formulario oculto
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec";
+        form.target = "hiddenFrame"; // Para evitar redirección
+
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "payload";
+        input.value = JSON.stringify(data);
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+
+        // Mostrar mensaje final
+        contenedor.innerHTML += `
+          <p style="color:#2980b9; margin-top: 20px;">📧 ¡Clave enviada por correo!</p>
+        `;
 
       } else {
         contenedor.innerHTML = `
