@@ -57,7 +57,7 @@
     const id = getQueryVariable("id");
     const clientTxId = getQueryVariable("clientTransactionId");
 
-    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"; // Reemplaza con tu token real
+    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"; // Tu token real
 
     fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
       method: "POST",
@@ -80,21 +80,29 @@
         contenedor.innerHTML = `
           <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
           <p>Gracias por tu compra. En unos minutos recibirás un correo en: <strong>${email}</strong> con tus claves de acceso.</p>
+          <p>Enviando tu información de acceso...</p>
         `;
 
-        // Enviar datos como formulario oculto (evita CORS)
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = "https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec";
-
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = "payload";
-        input.value = JSON.stringify(data);
-
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
+        // Enviar los datos al Google Apps Script sin redirigir
+        fetch("https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ payload: data })
+        })
+        .then(res => res.text())
+        .then(responseText => {
+          contenedor.innerHTML += `
+            <p style="color:#2980b9; margin-top: 20px;">📧 ¡Clave enviada por correo!</p>
+          `;
+        })
+        .catch(err => {
+          contenedor.innerHTML += `
+            <p style="color:#e67e22;">⚠️ Hubo un error al enviar la información al sistema. Por favor, contáctanos.</p>
+            <pre>${JSON.stringify(err, null, 2)}</pre>
+          `;
+        });
 
       } else {
         contenedor.innerHTML = `
