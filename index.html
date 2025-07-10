@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pago con PayPhone</title>
   <style>
     body {
@@ -9,47 +10,71 @@
       margin: 0;
       padding: 0;
       background-color: #f5f5f5;
-    }
-    .container {
       display: flex;
       justify-content: center;
-      padding-top: 20px;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .payment-container {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
     }
     .payment-button {
       display: inline-block;
-      padding: 15px 30px;
+      padding: 12px 25px;
       background-color: #00a6e8;
       color: white;
       text-decoration: none;
       border-radius: 6px;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16px;
       transition: all 0.3s ease;
       border: none;
       cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
     }
     .payment-button:hover {
       background-color: #0088c6;
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     }
-    .loader {
-      display: none;
+    .amount-display {
+      font-size: 24px;
+      margin: 15px 0;
+      color: #2c3e50;
+      font-weight: bold;
+    }
+    .logo {
+      max-width: 150px;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="payment-container">
+    <img src="https://pay.payphonetodoesposible.com/assets/img/logo.png" alt="PayPhone" class="logo">
+    <div class="amount-display" id="amountDisplay">$0.00</div>
     <div id="botones">
       <div class="loader" id="loader">Cargando...</div>
     </div>
+    <p style="font-size: 12px; color: #777; margin-top: 15px;">
+      Pago seguro con cifrado SSL
+    </p>
   </div>
 
   <script>
-    // Obtener el monto de la URL
     const urlParams = new URLSearchParams(window.location.search);
-    let monto = urlParams.get('monto') || 1000; // Valor por defecto 1000 centavos ($10.00) si no hay parámetro
+    let montoCentavos = urlParams.get('monto') || 1000;
+    let montoDolares = (montoCentavos / 100).toFixed(2);
     
+    document.getElementById('amountDisplay').textContent = `$${montoDolares}`;
+
     const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
     const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
     const transactionId = Date.now().toString();
@@ -60,8 +85,8 @@
     };
 
     const data = {
-      amount: parseInt(monto),
-      amountWithoutTax: parseInt(monto),
+      amount: parseInt(montoCentavos),
+      amountWithoutTax: parseInt(montoCentavos),
       amountWithTax: 0,
       tax: 0,
       reference: "Compra en MACVASQUEZ",
@@ -78,23 +103,22 @@
     })
     .then(res => res.json())
     .then(data => {
-      console.log(data);
       const container = document.getElementById("botones");
-      container.innerHTML = ''; // Limpiar el loader
+      container.innerHTML = '';
 
       if (data.payWithCard) {
         const btnCard = document.createElement("a");
         btnCard.className = "payment-button";
         btnCard.href = data.payWithCard;
-        btnCard.textContent = 'Pagar Ahora';
-        btnCard.target = "_blank";
+        btnCard.textContent = 'Pagar con Tarjeta';
+        btnCard.target = "_blank"; // <- Abre en nueva pestaña
         container.appendChild(btnCard);
       } else {
-        container.innerHTML = '<div class="error">Error al generar enlace de pago</div>';
+        container.innerHTML = '<p style="color: #e74c3c;">Error al generar enlace de pago</p>';
       }
     })
     .catch(error => {
-      document.getElementById("botones").innerHTML = '<div class="error">Error al conectar</div>';
+      document.getElementById("botones").innerHTML = '<p style="color: #e74c3c;">Error de conexión</p>';
       console.error(error);
     });
   </script>
