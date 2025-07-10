@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pago con PayPhone</title>
   <style>
+    /* Tus estilos actuales se mantienen igual */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -109,11 +110,14 @@
       container.innerHTML = '';
 
       if (data.payWithCard) {
-        const btnCard = document.createElement("a");
+        const btnCard = document.createElement("button"); // Cambiado de <a> a <button>
         btnCard.className = "payment-button";
-        btnCard.href = data.payWithCard;
         btnCard.textContent = 'Pagar con Tarjeta';
-        btnCard.target = "_parent"; // Cambiado a _parent para que no abra nueva pestaña
+        btnCard.onclick = function() {
+          // Abrir en nueva pestaña con las características específicas
+          const newWindow = window.open(data.payWithCard, '_blank', 'noopener,noreferrer');
+          if (newWindow) newWindow.opener = null;
+        };
         container.appendChild(btnCard);
       } else {
         container.innerHTML = '<p style="color: #e74c3c;">Error al generar enlace de pago</p>';
