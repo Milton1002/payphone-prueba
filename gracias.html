@@ -38,6 +38,23 @@
     .btn-volver:hover {
       background-color: #1a252f;
     }
+    .productos {
+      text-align: left;
+      margin: 20px auto;
+      max-width: 500px;
+    }
+    .producto {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -57,8 +74,22 @@
       return urlParams.get(name);
     }
 
+    function parseProductos(productosStr) {
+      if (!productosStr) return [];
+      return productosStr.split(',').map(prod => {
+        const [nombre, cantidad, precio] = prod.split('|');
+        return {
+          nombre: decodeURIComponent(nombre),
+          cantidad: parseInt(cantidad),
+          precio: parseFloat(precio)
+        };
+      });
+    }
+
     const id = getQueryVariable("id");
     const clientTxId = getQueryVariable("clientTransactionId");
+    const productosParam = getQueryVariable("productos");
+    const productos = parseProductos(productosParam);
 
     const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ"; // Tu token real
 
@@ -79,12 +110,34 @@
 
       if (data.transactionStatus === "Approved") {
         const email = data.email || "cliente";
+        const total = productos.reduce((sum, prod) => sum + (prod.precio * prod.cantidad), 0);
+
+        // Mostrar resumen de productos
+        let productosHTML = '<div class="productos">';
+        productos.forEach(prod => {
+          productosHTML += `
+            <div class="producto">
+              <span>${prod.nombre} x${prod.cantidad}</span>
+              <span>$${(prod.precio * prod.cantidad).toFixed(2)}</span>
+            </div>
+          `;
+        });
+        productosHTML += `<div class="total">Total: $${total.toFixed(2)}</div></div>`;
 
         contenedor.innerHTML = `
           <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
           <p>Gracias por tu compra. En unos minutos recibirás un correo en: <strong>${email}</strong> con tus claves de acceso.</p>
+          ${productosHTML}
           <p>Enviando tu información de acceso...</p>
         `;
+
+        // Crear objeto con datos para enviar al correo
+        const emailData = {
+          ...data,
+          productos: productos,
+          total: total,
+          fecha: new Date().toLocaleString()
+        };
 
         // Crear formulario oculto
         const form = document.createElement("form");
@@ -95,7 +148,7 @@
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = "payload";
-        input.value = JSON.stringify(data);
+        input.value = JSON.stringify(emailData);
 
         form.appendChild(input);
         document.body.appendChild(form);
