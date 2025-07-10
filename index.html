@@ -8,12 +8,10 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
+      padding: 40px 0;
       background-color: #f5f5f5;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
     }
     .payment-container {
       background: white;
@@ -44,36 +42,18 @@
       transform: translateY(-2px);
       box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     }
-    .amount-display {
-      font-size: 24px;
-      margin: 15px 0;
-      color: #2c3e50;
-      font-weight: bold;
-    }
-    .logo {
-      max-width: 150px;
-      margin-bottom: 15px;
-    }
   </style>
 </head>
 <body>
   <div class="payment-container">
-    <img src="https://pay.payphonetodoesposible.com/assets/img/logo.png" alt="PayPhone" class="logo">
-    <div class="amount-display" id="amountDisplay">$0.00</div>
     <div id="botones">
       <div class="loader" id="loader">Cargando...</div>
     </div>
-    <p style="font-size: 12px; color: #777; margin-top: 15px;">
-      Pago seguro con cifrado SSL
-    </p>
   </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     let montoCentavos = urlParams.get('monto') || 1000;
-    let montoDolares = (montoCentavos / 100).toFixed(2);
-    
-    document.getElementById('amountDisplay').textContent = `$${montoDolares}`;
 
     const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
     const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
@@ -111,7 +91,7 @@
         btnCard.className = "payment-button";
         btnCard.href = data.payWithCard;
         btnCard.textContent = 'Pagar con Tarjeta';
-        btnCard.target = "_blank"; // <- Abre en nueva pestaña
+        btnCard.target = "_blank";
         container.appendChild(btnCard);
       } else {
         container.innerHTML = '<p style="color: #e74c3c;">Error al generar enlace de pago</p>';
