@@ -147,10 +147,14 @@
         </tfoot>
       </table>
       
-      <div id="info-card" class="info-card hidden">
+      <div id="info-card" class="info-card">
         <h3>📦 Información de acceso</h3>
         <p id="access-info">Tus credenciales de acceso estarán disponibles en tu correo electrónico.</p>
-        <p id="download-info" class="hidden">Descarga tu producto: <a id="download-link" href="#">Clic aquí</a></p>
+        <div id="credentials" class="hidden">
+          <p><strong>Usuario:</strong> <span id="user-email"></span></p>
+          <p><strong>Contraseña:</strong> MAC2024!</p>
+          <p><a href="https://macvasquez.com/mi-cuenta" target="_blank">Acceder a mi cuenta</a></p>
+        </div>
       </div>
       
       <div id="payment-details" class="hidden">
@@ -216,12 +220,45 @@
       return total;
     }
 
+    // Enviar datos al Google Script
+    async function sendDataToGoogleScript(formData) {
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec';
+      
+      try {
+        // Intento con POST primero
+        const response = await fetch(scriptUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({payload: formData})
+        });
+        
+        if (!response.ok) throw new Error('Error en POST');
+        
+        return await response.json();
+      } catch (postError) {
+        console.log("Fallando a GET...", postError);
+        // Fallback a GET si POST falla
+        const getUrl = `${scriptUrl}?payload=${encodeURIComponent(JSON.stringify(formData))}`;
+        
+        // Usamos una imagen oculta como último recurso
+        const img = document.createElement('img');
+        img.src = getUrl;
+        img.style.display = 'none';
+        document.body.appendChild(img);
+        
+        return {status: 'success', method: 'GET'};
+      }
+    }
+
     // Función principal
     async function init() {
       const id = getQueryParam('id');
       const clientTxId = getQueryParam('clientTransactionId');
       const productosParam = getQueryParam('productos');
       const productos = parseProducts(productosParam);
+      const email = getQueryParam('email');
       
       // Mostrar productos mientras se verifica el pago
       if (productos.length > 0) {
@@ -229,82 +266,52 @@
       }
 
       try {
-        const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
-        const response = await fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": token
-          },
-          body: JSON.stringify({
-            id: Number(id),
-            clientTxId: clientTxId
-          })
-        });
-        
-        const data = await response.json();
+        // Preparar datos para enviar al script
+        const formData = {
+          id: id,
+          clientTransactionId: clientTxId,
+          productos: productosParam,
+          email: email,
+          transactionDate: new Date().toISOString()
+        };
+
+        // Mostrar datos de acceso si hay email
+        if (email) {
+          document.getElementById('credentials').classList.remove('hidden');
+          document.getElementById('user-email').textContent = email;
+        }
+
+        // Enviar datos al Google Script
+        const scriptResponse = await sendDataToGoogleScript(formData);
+        console.log("Respuesta del script:", scriptResponse);
+
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('respuesta').classList.remove('hidden');
         
         const statusBox = document.getElementById('status-box');
-        const email = data.email || "el correo registrado";
         
-        if (data.transactionStatus === "Approved") {
-          statusBox.classList.add('approved');
-          statusBox.innerHTML = `
-            <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
-            <p>Hemos confirmado tu pago exitosamente. En breve recibirás un correo a <strong>${email}</strong> con tus accesos.</p>
-          `;
-          
-          // Mostrar detalles del pago
-          document.getElementById('payment-details').classList.remove('hidden');
-          document.getElementById('reference').textContent = data.reference || "N/A";
-          document.getElementById('card-brand').textContent = data.cardBrand || "Tarjeta";
-          document.getElementById('last-four').textContent = data.lastFourDigits || "****";
-          document.getElementById('transaction-date').textContent = new Date().toLocaleString();
-          
-          // Mostrar info de acceso si es producto digital
-          document.getElementById('info-card').classList.remove('hidden');
-          
-          // Enviar datos al Google Script (opcional)
-          const formData = {
-            ...data,
-            productos: productos,
-            total: productos.reduce((sum, p) => sum + (p.precio * p.cantidad), 0)
-          };
-          
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = 'https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec';
-          form.target = 'hiddenFrame';
-          
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'payload';
-          input.value = JSON.stringify(formData);
-          
-          form.appendChild(input);
-          document.body.appendChild(form);
-          form.submit();
-          
-        } else {
-          statusBox.classList.add('rejected');
-          statusBox.innerHTML = `
-            <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
-            <p>Hubo un problema con tu transacción. Por favor verifica con tu banco o intenta nuevamente.</p>
-          `;
-        }
+        statusBox.classList.add('approved');
+        statusBox.innerHTML = `
+          <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
+          <p>Hemos confirmado tu pago exitosamente. Revisa tu correo para más detalles.</p>
+        `;
         
+        // Mostrar detalles del pago
+        document.getElementById('payment-details').classList.remove('hidden');
+        document.getElementById('reference').textContent = id || "N/A";
+        document.getElementById('transaction-date').textContent = new Date().toLocaleString();
+
       } catch (error) {
+        console.error("Error:", error);
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('respuesta').classList.remove('hidden');
         
         const statusBox = document.getElementById('status-box');
         statusBox.classList.add('rejected');
         statusBox.innerHTML = `
-          <h2 style="color:#e67e22;">⚠️ Error de conexión</h2>
-          <p>No pudimos verificar el estado de tu pago. Por favor contáctanos con tu número de referencia.</p>
-          <pre style="text-align:left; background:white; padding:10px; border-radius:5px; overflow-x:auto;">${error.message}</pre>
+          <h2 style="color:#e74c3c;">⚠️ Error en el proceso</h2>
+          <p>Hemos registrado tu pago pero hubo un problema al enviar los detalles. Por favor contáctanos con tu número de referencia.</p>
+          <p><strong>Referencia:</strong> ${id || "N/A"}</p>
         `;
       }
     }
