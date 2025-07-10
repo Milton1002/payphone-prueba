@@ -2,42 +2,54 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Pagar ahora</title>
+  <title>Pago con PayPhone</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f8f8f8;
+      padding-top: 20px;
     }
     .payment-button {
       display: inline-block;
-      padding: 14px 30px;
+      padding: 15px 30px;
       background-color: #00a6e8;
       color: white;
       text-decoration: none;
       border-radius: 6px;
-      font-size: 18px;
       font-weight: bold;
-      transition: background-color 0.3s ease, transform 0.3s ease;
+      font-size: 18px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
     }
     .payment-button:hover {
       background-color: #0088c6;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
+    .loader {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div id="botonPago">Cargando...</div>
+  <div class="container">
+    <div id="botones">
+      <div class="loader" id="loader">Cargando...</div>
+    </div>
+  </div>
 
   <script>
+    // Obtener el monto de la URL
     const urlParams = new URLSearchParams(window.location.search);
-    let monto = urlParams.get('monto') || 1000; // 1000 centavos por defecto ($10.00)
-
+    let monto = urlParams.get('monto') || 1000; // Valor por defecto 1000 centavos ($10.00) si no hay parámetro
+    
     const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
     const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
     const transactionId = Date.now().toString();
@@ -66,20 +78,23 @@
     })
     .then(res => res.json())
     .then(data => {
-      const container = document.getElementById("botonPago");
+      console.log(data);
+      const container = document.getElementById("botones");
+      container.innerHTML = ''; // Limpiar el loader
+
       if (data.payWithCard) {
         const btnCard = document.createElement("a");
         btnCard.className = "payment-button";
         btnCard.href = data.payWithCard;
-        btnCard.textContent = "Pagar ahora";
-        container.innerHTML = '';
+        btnCard.textContent = 'Pagar Ahora';
+        btnCard.target = "_blank";
         container.appendChild(btnCard);
       } else {
-        container.textContent = "⚠️ No se pudo generar el enlace de pago.";
+        container.innerHTML = '<div class="error">Error al generar enlace de pago</div>';
       }
     })
     .catch(error => {
-      document.getElementById("botonPago").textContent = "❌ Error al conectar con PayPhone.";
+      document.getElementById("botones").innerHTML = '<div class="error">Error al conectar</div>';
       console.error(error);
     });
   </script>
