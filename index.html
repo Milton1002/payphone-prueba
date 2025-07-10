@@ -8,18 +8,18 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px 0;
+      padding: 40px 0;
       background-color: #f5f5f5;
       display: flex;
       justify-content: center;
     }
     .payment-container {
       background: white;
-      padding: 15px;
+      padding: 25px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       width: 100%;
-      max-width: 400px;
+      max-width: 500px;
       text-align: center;
     }
     .payment-button {
@@ -36,24 +36,89 @@
       cursor: pointer;
       width: 100%;
       box-sizing: border-box;
+      margin-bottom: 20px;
     }
     .payment-button:hover {
       background-color: #0088c6;
       transform: translateY(-2px);
       box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     }
+    .product-list {
+      text-align: left;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+    .product-item {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0,0,0,.1);
+      border-radius: 50%;
+      border-top-color: #00a6e8;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
   <div class="payment-container">
+    <h2>Resumen de Compra</h2>
+    
+    <div id="product-list" class="product-list">
+      <!-- Los productos se mostrarán aquí -->
+    </div>
+    
+    <div id="total" class="total">
+      Total: $0.00
+    </div>
+    
     <div id="botones">
-      <div class="loader" id="loader">Cargando...</div>
+      <div class="loader" id="loader"></div>
+      <span>Cargando métodos de pago...</span>
     </div>
   </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     let montoCentavos = urlParams.get('monto') || 1000;
+    const productosParam = urlParams.get('productos');
+    
+    // Mostrar productos en el resumen
+    if (productosParam) {
+      const productList = document.getElementById('product-list');
+      const productos = productosParam.split(',');
+      let total = 0;
+      
+      productos.forEach(prod => {
+        const [nombre, cantidad, precio] = prod.split('|');
+        const itemTotal = cantidad * precio;
+        total += itemTotal;
+        
+        const productItem = document.createElement('div');
+        productItem.className = 'product-item';
+        productItem.innerHTML = `
+          <span>${decodeURIComponent(nombre)} x${cantidad}</span>
+          <span>$${(itemTotal).toFixed(2)}</span>
+        `;
+        productList.appendChild(productItem);
+      });
+      
+      document.getElementById('total').textContent = `Total: $${total.toFixed(2)}`;
+    }
 
     const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
     const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
