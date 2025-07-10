@@ -99,6 +99,7 @@
           btnPhone.className = "payment-button";
           btnPhone.href = data.payWithPayPhone;
           btnPhone.innerHTML = '<i class="fas fa-mobile-alt"></i> Pagar con PayPhone App';
+          btnPhone.target = "_blank";
           container.appendChild(btnPhone);
         }
 
@@ -107,6 +108,7 @@
           btnCard.className = "payment-button";
           btnCard.href = data.payWithCard;
           btnCard.innerHTML = '<i class="far fa-credit-card"></i> Pagar con Tarjeta';
+          btnCard.target = "_blank";
           container.appendChild(btnCard);
         }
       } else {
