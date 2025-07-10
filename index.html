@@ -22,6 +22,22 @@
       max-width: 500px;
       text-align: center;
     }
+    .product-list {
+      text-align: left;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+    .product-item {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      margin: 20px 0;
+    }
     .payment-button {
       display: inline-block;
       padding: 12px 25px;
@@ -42,22 +58,6 @@
       background-color: #0088c6;
       transform: translateY(-2px);
       box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-    }
-    .product-list {
-      text-align: left;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-    }
-    .product-item {
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .total {
-      font-weight: bold;
-      font-size: 18px;
-      margin: 20px 0;
     }
     .loader {
       display: inline-block;
@@ -118,15 +118,16 @@
       });
       
       document.getElementById('total').textContent = `Total: $${total.toFixed(2)}`;
+      montoCentavos = total * 100; // Actualizar monto por si acaso
     }
 
-    const token = "OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
+    const token = "Bearer TU_TOKEN_PAYPHONE_AQUI";
     const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
     const transactionId = Date.now().toString();
 
     const headers = {
       "Content-Type": "application/json",
-      "Authorization": "Bearer " + token,
+      "Authorization": token,
     };
 
     const data = {
@@ -134,11 +135,11 @@
       amountWithoutTax: parseInt(montoCentavos),
       amountWithTax: 0,
       tax: 0,
-      reference: "Compra en MACVASQUEZ",
+      reference: "Compra en MACVASQUEZ - " + (productosParam ? decodeURIComponent(productosParam.split(',')[0].split('|')[0]) : "Productos"),
       currency: "USD",
       clientTransactionId: transactionId,
       storeId: storeId,
-      ResponseUrl: "https://milton1002.github.io/payphone-prueba/gracias.html"
+      ResponseUrl: "https://tudominio.com/gracias.html?productos=" + encodeURIComponent(productosParam || "")
     };
 
     fetch("https://pay.payphonetodoesposible.com/api/button/Prepare", {
