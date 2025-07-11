@@ -2,190 +2,77 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gracias por tu compra - MACVASQUEZ</title>
+  <title>Gracias por tu compra</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background-color: #f8f9fa;
-      color: #333;
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 30px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      padding: 40px;
+      text-align: center;
     }
     h1 {
       color: #27ae60;
-      text-align: center;
-      margin-bottom: 30px;
     }
-    .status-box {
+    .respuesta {
+      margin-top: 30px;
       padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .approved {
-      background-color: #e8f5e9;
-      border-left: 5px solid #27ae60;
-    }
-    .rejected {
-      background-color: #ffebee;
-      border-left: 5px solid #e74c3c;
-    }
-    .product-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 25px 0;
-    }
-    .product-table th {
-      background-color: #2c3e50;
-      color: white;
-      padding: 12px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
       text-align: left;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .product-table td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
-    }
-    .product-table tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    .total-row {
-      font-weight: bold;
-      background-color: #ecf0f1 !important;
-    }
-    .info-card {
-      background-color: #f0f7ff;
-      padding: 20px;
+    pre {
+      background: #f0f0f0;
+      padding: 15px;
       border-radius: 8px;
-      margin: 25px 0;
-      border-left: 5px solid #6e8efb;
+      overflow-x: auto;
     }
-    .btn {
+    .btn-volver {
       display: inline-block;
+      margin-top: 30px;
       background-color: #2c3e50;
       color: white;
-      padding: 12px 25px;
-      text-decoration: none;
+      padding: 12px 24px;
+      border: none;
       border-radius: 6px;
-      font-weight: bold;
-      transition: all 0.3s;
-      margin-top: 20px;
+      font-size: 16px;
+      text-decoration: none;
     }
-    .btn:hover {
+    .btn-volver:hover {
       background-color: #1a252f;
-      transform: translateY(-2px);
     }
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      color: #7f8c8d;
-      font-size: 14px;
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
     }
-    .hidden {
-      display: none;
+    table th, table td {
+      padding: 8px;
+      border: 1px solid #ddd;
     }
-    .loading {
-      text-align: center;
-      padding: 20px;
-    }
-    .spinner {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #3498db;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    table th {
+      background-color: #f0f0f0;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>✅ ¡Gracias por tu compra en MACVASQUEZ!</h1>
-    
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <p>Verificando tu pago...</p>
-    </div>
-    
-    <div id="respuesta" class="hidden">
-      <div id="status-box" class="status-box">
-        <!-- Contenido dinámico -->
-      </div>
-      
-      <h2>Detalle de tu compra</h2>
-      <table id="product-table" class="product-table">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio Unitario</th>
-            <th>Subtotal</th>
-          </tr>
-        </thead>
-        <tbody id="product-list">
-          <!-- Productos se insertarán aquí -->
-        </tbody>
-        <tfoot>
-          <tr class="total-row">
-            <td colspan="3">Total</td>
-            <td id="total-amount">$0.00</td>
-          </tr>
-        </tfoot>
-      </table>
-      
-      <div id="info-card" class="info-card">
-        <h3>📦 Información de acceso</h3>
-        <p id="access-info">Tus credenciales de acceso estarán disponibles en tu correo electrónico.</p>
-        <div id="credentials" class="hidden">
-          <p><strong>Usuario:</strong> <span id="user-email"></span></p>
-          <p><strong>Contraseña:</strong> MAC2024!</p>
-          <p><a href="https://macvasquez.com/mi-cuenta" target="_blank">Acceder a mi cuenta</a></p>
-        </div>
-      </div>
-      
-      <div id="payment-details" class="hidden">
-        <h3>📄 Detalles del pago</h3>
-        <p><strong>Referencia:</strong> <span id="reference"></span></p>
-        <p><strong>Tarjeta:</strong> <span id="card-brand"></span> (***<span id="last-four"></span>)</p>
-        <p><strong>Fecha:</strong> <span id="transaction-date"></span></p>
-      </div>
-      
-      <center>
-        <a href="https://www.macvasquez.com" class="btn">Volver al sitio</a>
-      </center>
-    </div>
-  </div>
-  
-  <div class="footer">
-    <p>Este es un mensaje automático. Para consultas, contacta a: info@macvasquez.com</p>
-  </div>
+  <h1>✅ ¡Gracias por tu compra!</h1>
+  <p>Estamos verificando tu pago...</p>
 
-  <!-- Iframe oculto para evitar redirección -->
-  <iframe name="hiddenFrame" style="display:none;"></iframe>
+  <div class="respuesta" id="respuesta"></div>
+
+  <a class="btn-volver" href="https://www.macvasquez.com">Volver al inicio</a>
 
   <script>
-    // Obtener parámetros de la URL
-    function getQueryParam(name) {
+    function getQueryVariable(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
     }
 
-    // Parsear productos desde URL
-    function parseProducts(productosStr) {
+    function parseProductos(productosStr) {
       if (!productosStr) return [];
       return productosStr.split(',').map(item => {
         const [nombre, cantidad, precio] = item.split('|');
@@ -197,127 +84,124 @@
       });
     }
 
-    // Mostrar productos en la tabla
-    function displayProducts(products) {
-      const productList = document.getElementById('product-list');
+    function mostrarProductos(productos, container) {
+      if (productos.length === 0) return;
+
       let total = 0;
-      
-      products.forEach(prod => {
-        const subtotal = prod.precio * prod.cantidad;
+      let html = `
+        <h3>🛒 Productos comprados:</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      productos.forEach(p => {
+        const subtotal = p.cantidad * p.precio;
         total += subtotal;
-        
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${prod.nombre}</td>
-          <td>${prod.cantidad}</td>
-          <td>$${prod.precio.toFixed(2)}</td>
-          <td>$${subtotal.toFixed(2)}</td>
+        html += `
+          <tr>
+            <td>${p.nombre}</td>
+            <td>${p.cantidad}</td>
+            <td>$${p.precio.toFixed(2)}</td>
+            <td>$${subtotal.toFixed(2)}</td>
+          </tr>
         `;
-        productList.appendChild(row);
       });
-      
-      document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
-      return total;
+      html += `
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="3">Total</th><th>$${total.toFixed(2)}</th>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+      container.innerHTML += html;
     }
 
-    // Enviar datos al Google Script
-    async function sendDataToGoogleScript(formData) {
-      const scriptUrl = 'https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec';
-      
+    async function enviarAScriptGoogle(payload) {
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec";
+
       try {
-        // Intento con POST primero
-        const response = await fetch(scriptUrl, {
+        const res = await fetch(scriptUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({payload: formData})
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload })
         });
-        
-        if (!response.ok) throw new Error('Error en POST');
-        
-        return await response.json();
-      } catch (postError) {
-        console.log("Fallando a GET...", postError);
-        // Fallback a GET si POST falla
-        const getUrl = `${scriptUrl}?payload=${encodeURIComponent(JSON.stringify(formData))}`;
-        
-        // Usamos una imagen oculta como último recurso
+        return await res.json();
+      } catch (e) {
+        // fallback a GET si falla POST
         const img = document.createElement('img');
-        img.src = getUrl;
+        img.src = scriptUrl + "?payload=" + encodeURIComponent(JSON.stringify(payload));
         img.style.display = 'none';
         document.body.appendChild(img);
-        
-        return {status: 'success', method: 'GET'};
+        return { method: "GET fallback" };
       }
     }
 
-    // Función principal
-    async function init() {
-      const id = getQueryParam('id');
-      const clientTxId = getQueryParam('clientTransactionId');
-      const productosParam = getQueryParam('productos');
-      const productos = parseProducts(productosParam);
-      const email = getQueryParam('email');
-      
-      // Mostrar productos mientras se verifica el pago
-      if (productos.length > 0) {
-        displayProducts(productos);
-      }
+    const id = getQueryVariable("id");
+    const clientTxId = getQueryVariable("clientTransactionId");
+    const productosParam = getQueryVariable("productos");
+    const email = getQueryVariable("email");
 
-      try {
-        // Preparar datos para enviar al script
-        const formData = {
+    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
+
+    fetch("https://pay.payphone.com/api/button/V2/Confirm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
+      body: JSON.stringify({
+        id: Number(id),
+        clientTxId: clientTxId
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const contenedor = document.getElementById("respuesta");
+
+      if (data.transactionStatus === "Approved") {
+        contenedor.innerHTML = `
+          <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
+          <p>Tu compra fue exitosa. Aquí están los detalles del pago:</p>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+
+        const productos = parseProductos(productosParam);
+        mostrarProductos(productos, contenedor);
+
+        const payload = {
           id: id,
           clientTransactionId: clientTxId,
-          productos: productosParam,
-          email: email,
-          transactionDate: new Date().toISOString()
+          email: email || data.email || "",
+          productos: productosParam || "",
+          transactionDate: new Date().toISOString(),
+          payphoneData: data
         };
 
-        // Mostrar datos de acceso si hay email
-        if (email) {
-          document.getElementById('credentials').classList.remove('hidden');
-          document.getElementById('user-email').textContent = email;
-        }
+        enviarAScriptGoogle(payload).then(res => {
+          console.log("Registrado en Google Sheet:", res);
+        });
 
-        // Enviar datos al Google Script
-        const scriptResponse = await sendDataToGoogleScript(formData);
-        console.log("Respuesta del script:", scriptResponse);
-
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('respuesta').classList.remove('hidden');
-        
-        const statusBox = document.getElementById('status-box');
-        
-        statusBox.classList.add('approved');
-        statusBox.innerHTML = `
-          <h2 style="color:#27ae60;">✔️ Pago Aprobado</h2>
-          <p>Hemos confirmado tu pago exitosamente. Revisa tu correo para más detalles.</p>
-        `;
-        
-        // Mostrar detalles del pago
-        document.getElementById('payment-details').classList.remove('hidden');
-        document.getElementById('reference').textContent = id || "N/A";
-        document.getElementById('transaction-date').textContent = new Date().toLocaleString();
-
-      } catch (error) {
-        console.error("Error:", error);
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('respuesta').classList.remove('hidden');
-        
-        const statusBox = document.getElementById('status-box');
-        statusBox.classList.add('rejected');
-        statusBox.innerHTML = `
-          <h2 style="color:#e74c3c;">⚠️ Error en el proceso</h2>
-          <p>Hemos registrado tu pago pero hubo un problema al enviar los detalles. Por favor contáctanos con tu número de referencia.</p>
-          <p><strong>Referencia:</strong> ${id || "N/A"}</p>
+      } else {
+        contenedor.innerHTML = `
+          <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
+          <p>Hubo un problema con tu transacción:</p>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
         `;
       }
-    }
-
-    // Iniciar cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', init);
+    })
+    .catch(error => {
+      document.getElementById("respuesta").innerHTML = `
+        <h2 style="color:#e67e22;">⚠️ Error de verificación</h2>
+        <p>No se pudo verificar el pago. Intenta nuevamente más tarde.</p>
+        <pre>${JSON.stringify(error, null, 2)}</pre>
+      `;
+    });
   </script>
 </body>
 </html>
