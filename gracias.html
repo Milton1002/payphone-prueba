@@ -48,29 +48,53 @@
   <script>
   async function main(){
     const params = new URLSearchParams(window.location.search);
+
+    // Datos del pago (PayPhone agrega status / idTransaction / amount)
     const estado = params.get("status") || "Approved";
     const referencia = params.get("idTransaction") || "N/A";
     const monto = params.get("amount") || "1.00";
+
+    // MUY IMPORTANTE: ID que viene arrastrado desde macvasquez -> index -> gracias
+    let deviceIdFromQuery = params.get("deviceId") || "";
+
+    // Reconstruimos o reutilizamos deviceId
+    let deviceId = deviceIdFromQuery;
+    if (!deviceId) {
+      // intento leer localStorage
+      deviceId = localStorage.getItem('mvDeviceId');
+    }
+    if (!deviceId) {
+      // último recurso: generar uno estable (misma lógica que usas en macvasquez)
+      const fp = [
+        navigator.language || '',
+        navigator.platform || '',
+        (screen && screen.width ? screen.width : '0') + 'x' + (screen && screen.height ? screen.height : '0'),
+        new Date().getTimezoneOffset()
+      ].join('-');
+      deviceId = 'mv-' + btoa(fp).replace(/[^a-z0-9]/gi,'').slice(0,10);
+    }
+
+    // Guardar/forzar deviceId en este dominio también
+    try {
+      localStorage.setItem('mvDeviceId', deviceId);
+    } catch(_){}
+
     const contenedor = document.getElementById("contenedor");
 
-    // Mostrar estado de pago
-    if (estado === "Approved" || estado === "APPROVED" || estado === "aprobado"){
+    // Si el pago fue aprobado, intentamos desbloquear
+    if (estado.toLowerCase() === "approved" || estado.toLowerCase() === "aprobado"){
       contenedor.innerHTML = `
-        <h2 class="ok">✔️ ¡Pago Aprobado!</h2>
-        <p>Tu pago fue procesado correctamente.</p>
+        <h2 class="ok" style="color:#16a34a;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span style="font-size:20px;">✅</span>
+          <span>Pago aprobado</span>
+        </h2>
+        <p>Tu pago fue procesado correctamente. Activando tus consultas…</p>
         <p><strong>Monto:</strong> $${monto}</p>
         <p><strong>Referencia:</strong> ${referencia}</p>
-        <p>Activando tus consultas...</p>
       `;
 
-      // === NUEVO: Desbloquear consultas de nombres ===
+      // Llamar a tu backend para marcar este deviceId como pagado
       try {
-        let deviceId = localStorage.getItem('mvDeviceId');
-        if (!deviceId) {
-          deviceId = 'mv-' + Date.now() + '-' + Math.random().toString(16).slice(2);
-          localStorage.setItem('mvDeviceId', deviceId);
-        }
-
         const resp = await fetch("https://macvasquez-quota-lt8rqerln-milton002s-projects.vercel.app/api/quota/unlock", {
           method: "POST",
           headers: {
@@ -84,6 +108,8 @@
         console.log("🔓 Resultado del desbloqueo:", data);
 
         if (data.ok || data.unlocked) {
+
+          // guardar flag premium en localStorage
           localStorage.setItem("mv_paid", "1");
           localStorage.setItem("mv_paid_meta", JSON.stringify({
             endpoint: "nombres",
@@ -92,24 +118,36 @@
           }));
 
           contenedor.innerHTML = `
-            <h2 class="ok">✅ ¡Consultas desbloqueadas!</h2>
+            <h2 class="ok" style="color:#16a34a;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <span style="font-size:20px;">✅</span>
+              <span>¡Consultas desbloqueadas!</span>
+            </h2>
+
             <p>Tu pago fue registrado y las consultas de nombres están activas.</p>
+
             <p><strong>Monto:</strong> $${monto}</p>
             <p><strong>Referencia:</strong> ${referencia}</p>
-            <a class="btn" href="https://www.macvasquez.com#identificacion-nombres">Volver a Consultas</a>
+
+            <a class="btn" href="https://www.macvasquez.com#identificacion-nombres">
+              Volver a Consultas
+            </a>
           `;
         } else {
-          contenedor.innerHTML += `<p style="color:#dc2626">⚠️ No se pudo confirmar el desbloqueo.</p>`;
+          contenedor.innerHTML += `<p style="color:#dc2626;margin-top:16px;">⚠️ No se pudo confirmar el desbloqueo.</p>`;
         }
       } catch (err) {
         console.error("Error al activar desbloqueo:", err);
-        contenedor.innerHTML += `<p style="color:#dc2626">⚠️ Error al activar desbloqueo.</p>`;
+        contenedor.innerHTML += `<p style="color:#dc2626;margin-top:16px;">⚠️ Error al activar desbloqueo.</p>`;
       }
+
     } else {
+      // Pago rechazado
       contenedor.innerHTML = `
-        <h2 class="fail">❌ Pago Rechazado</h2>
+        <h2 class="fail" style="color:#dc2626;">❌ Pago Rechazado</h2>
         <p>No se pudo completar el pago.</p>
-        <a class="btn" href="https://www.macvasquez.com">Volver</a>
+        <a class="btn" href="https://www.macvasquez.com">
+          Volver
+        </a>
       `;
     }
   }
