@@ -1,4 +1,3 @@
-<!-- Guardado como: pago_payphone_resumen_factura.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -165,18 +164,21 @@
     <div class="cards-image" id="cardsIcons" style="display: none;">
       <img src="https://pay.payphonetodoesposible.com/Content/imgv3/btnIconAllCard.svg" alt="Tarjetas aceptadas">
     </div>
-	
-	<p style="font-size: 14px; color: var(--dark-gray); text-align: center; margin-top: 10px;">
+
+    <p style="font-size: 14px; color: #4b5563; text-align: center; margin-top: 10px;">
       Pago seguro con tarjetas Visa, Mastercard, Diners y Discover.
     </p>
 
   </div>
 
   <script>
+    // 1. Leer parámetros de la URL, incluyendo deviceId que viene desde macvasquez.html
     const urlParams = new URLSearchParams(window.location.search);
     let montoCentavos = urlParams.get('monto') || 1000;
-    const productosParam = urlParams.get('productos');
+    const productosParam = urlParams.get('productos') || "";
+    const deviceId = urlParams.get('deviceId') || ""; // <- IMPORTANTE
 
+    // 2. Renderizar tabla de productos y calcular total
     if (productosParam) {
       const tbody = document.getElementById('product-list');
       const productos = productosParam.split(',');
@@ -201,6 +203,7 @@
       montoCentavos = total * 100;
     }
 
+    // 3. Datos para PayPhone
     const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
     const storeId = "b9877bb5-16ef-4d29-84d7-f71d6e93b76e";
     const transactionId = Date.now().toString();
@@ -209,6 +212,14 @@
       "Content-Type": "application/json",
       "Authorization": token,
     };
+
+    // 4. Armamos la ResponseUrl que PayPhone va a abrir al final.
+    //    Le pasamos también deviceId para que gracias.html sepa cuál ID desbloquear.
+    const responseUrlBase = "https://milton1002.github.io/payphone-prueba/gracias.html";
+    const responseUrlParams = new URLSearchParams({
+      productos: productosParam || "",
+      deviceId: deviceId || ""
+    });
 
     const data = {
       amount: parseInt(montoCentavos),
@@ -219,9 +230,10 @@
       currency: "USD",
       clientTransactionId: transactionId,
       storeId: storeId,
-      ResponseUrl: "https://milton1002.github.io/payphone-prueba/gracias.html?productos=" + encodeURIComponent(productosParam || "")
+      ResponseUrl: responseUrlBase + "?" + responseUrlParams.toString()
     };
 
+    // 5. Crear botón de pago con PayPhone
     fetch("https://pay.payphonetodoesposible.com/api/button/Prepare", {
       method: "POST",
       headers: headers,
