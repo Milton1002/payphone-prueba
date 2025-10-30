@@ -1,208 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Gracias por tu compra</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago Confirmado | MACVASQUEZ</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f8f9fa;
-      padding: 40px;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.1);
+      padding: 32px;
+      max-width: 420px;
       text-align: center;
     }
-    h1 {
-      color: #27ae60;
-    }
-    .mensaje {
-      margin-top: 30px;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .btn-volver {
+    h2 { margin-top: 0; }
+    .ok { color: #16a34a; }
+    .fail { color: #dc2626; }
+    .btn {
       display: inline-block;
-      margin-top: 30px;
-      background-color: #2c3e50;
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      text-decoration: none;
-    }
-    .btn-volver:hover {
-      background-color: #1a252f;
-    }
-    table {
-      width: 100%;
       margin-top: 20px;
-      border-collapse: collapse;
-    }
-    table th, table td {
-      padding: 8px;
-      border: 1px solid #ddd;
-    }
-    table th {
-      background-color: #f0f0f0;
-    }
-    .aviso-correo {
-      margin: 25px 0;
-      padding: 15px;
-      background-color: #e3f7e8;
+      padding: 10px 18px;
+      background: #0ea5e9;
+      color: #fff;
       border-radius: 8px;
-      border-left: 5px solid #27ae60;
+      text-decoration: none;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <h1>✅ ¡Gracias por tu compra!</h1>
-  <p>Estamos verificando tu pago...</p>
-
-  <div class="mensaje" id="mensaje"></div>
-
-  <a class="btn-volver" href="https://www.macvasquez.com">Volver al inicio</a>
+  <div class="card" id="contenedor">
+    <h2>Procesando pago...</h2>
+    <p>Por favor, espera un momento.</p>
+  </div>
 
   <script>
-    function getQueryVariable(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+  async function main(){
+    const params = new URLSearchParams(window.location.search);
+    const estado = params.get("status") || "Approved";
+    const referencia = params.get("idTransaction") || "N/A";
+    const monto = params.get("amount") || "1.00";
+    const contenedor = document.getElementById("contenedor");
 
-    function parseProductos(productosStr) {
-      if (!productosStr) return [];
-      return productosStr.split(',').map(item => {
-        const [nombre, cantidad, precio] = item.split('|');
-        return {
-          nombre: decodeURIComponent(nombre),
-          cantidad: parseInt(cantidad),
-          precio: parseFloat(precio)
-        };
-      });
-    }
-
-    function mostrarProductos(productos, container) {
-      if (productos.length === 0) return;
-
-      let total = 0;
-      let html = `
-        <h3>🛒 Productos comprados:</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
+    // Mostrar estado de pago
+    if (estado === "Approved" || estado === "APPROVED" || estado === "aprobado"){
+      contenedor.innerHTML = `
+        <h2 class="ok">✔️ ¡Pago Aprobado!</h2>
+        <p>Tu pago fue procesado correctamente.</p>
+        <p><strong>Monto:</strong> $${monto}</p>
+        <p><strong>Referencia:</strong> ${referencia}</p>
+        <p>Activando tus consultas...</p>
       `;
-      productos.forEach(p => {
-        const subtotal = p.cantidad * p.precio;
-        total += subtotal;
-        html += `
-          <tr>
-            <td>${p.nombre}</td>
-            <td>${p.cantidad}</td>
-            <td>$${p.precio.toFixed(2)}</td>
-            <td>$${subtotal.toFixed(2)}</td>
-          </tr>
-        `;
-      });
-      html += `
-          </tbody>
-          <tfoot>
-            <tr>
-              <th colspan="3">Total</th><th>$${total.toFixed(2)}</th>
-            </tr>
-          </tfoot>
-        </table>
-      `;
-      container.innerHTML += html;
-    }
 
-    async function enviarAScriptGoogle(payload) {
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec";
-
+      // === NUEVO: Desbloquear consultas de nombres ===
       try {
-        const res = await fetch(scriptUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ payload })
-        });
-        return await res.json();
-      } catch (e) {
-        // fallback a GET si falla POST
-        const img = document.createElement('img');
-        img.src = scriptUrl + "?payload=" + encodeURIComponent(JSON.stringify(payload));
-        img.style.display = 'none';
-        document.body.appendChild(img);
-        return { method: "GET fallback" };
-      }
-    }
+        let deviceId = localStorage.getItem('mvDeviceId');
+        if (!deviceId) {
+          deviceId = 'mv-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+          localStorage.setItem('mvDeviceId', deviceId);
+        }
 
-    const id = getQueryVariable("id");
-    const clientTxId = getQueryVariable("clientTransactionId");
-    const productosParam = getQueryVariable("productos");
-    const email = getQueryVariable("email");
-
-    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
-
-    fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token
-      },
-      body: JSON.stringify({
-        id: Number(id),
-        clientTxId: clientTxId
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      const contenedor = document.getElementById("mensaje");
-
-      if (data.transactionStatus === "Approved") {
-        contenedor.innerHTML = `
-          <h2 style="color:#27ae60;">✔️ ¡Pago Aprobado!</h2>
-          <p>Tu compra fue procesada exitosamente.</p>
-          <div class="aviso-correo">
-            <p>En unos minutos recibirás un mensaje con tus claves de acceso a: <strong>${email || data.email || ""}</strong></p>
-            <p>Recuerda revisar tu bandeja de entrada y la carpeta de spam.</p>
-          </div>
-        `;
-
-        const productos = parseProductos(productosParam);
-        mostrarProductos(productos, contenedor);
-
-        const payload = {
-          id: id,
-          clientTransactionId: clientTxId,
-          email: email || data.email || "",
-          productos: productosParam || "",
-          transactionDate: new Date().toISOString(),
-          payphoneData: data
-        };
-
-        enviarAScriptGoogle(payload).then(res => {
-          console.log("Registrado en Google Sheet:", res);
+        const resp = await fetch("https://macvasquez-quota-lt8rqerln-milton002s-projects.vercel.app/api/quota/unlock", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-device-id": deviceId
+          },
+          body: JSON.stringify({ endpoint: "nombres" })
         });
 
-      } else {
-        contenedor.innerHTML = `
-          <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
-          <p>Hubo un problema con tu transacción. Por favor intenta nuevamente o contacta con soporte.</p>
-        `;
+        const data = await resp.json();
+        console.log("🔓 Resultado del desbloqueo:", data);
+
+        if (data.ok || data.unlocked) {
+          localStorage.setItem("mv_paid", "1");
+          localStorage.setItem("mv_paid_meta", JSON.stringify({
+            endpoint: "nombres",
+            unlockedAt: new Date().toISOString(),
+            deviceId
+          }));
+
+          contenedor.innerHTML = `
+            <h2 class="ok">✅ ¡Consultas desbloqueadas!</h2>
+            <p>Tu pago fue registrado y las consultas de nombres están activas.</p>
+            <p><strong>Monto:</strong> $${monto}</p>
+            <p><strong>Referencia:</strong> ${referencia}</p>
+            <a class="btn" href="https://www.macvasquez.com#identificacion-nombres">Volver a Consultas</a>
+          `;
+        } else {
+          contenedor.innerHTML += `<p style="color:#dc2626">⚠️ No se pudo confirmar el desbloqueo.</p>`;
+        }
+      } catch (err) {
+        console.error("Error al activar desbloqueo:", err);
+        contenedor.innerHTML += `<p style="color:#dc2626">⚠️ Error al activar desbloqueo.</p>`;
       }
-    })
-    .catch(error => {
-      document.getElementById("mensaje").innerHTML = `
-        <h2 style="color:#e67e22;">⚠️ Error de verificación</h2>
-        <p>No se pudo verificar el pago. Intenta nuevamente más tarde.</p>
+    } else {
+      contenedor.innerHTML = `
+        <h2 class="fail">❌ Pago Rechazado</h2>
+        <p>No se pudo completar el pago.</p>
+        <a class="btn" href="https://www.macvasquez.com">Volver</a>
       `;
-    });
+    }
+  }
+
+  main();
   </script>
 </body>
 </html>
