@@ -1,158 +1,393 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pago Confirmado | MACVASQUEZ</title>
+  <meta charset="UTF-8" />
+  <title>Confirmación de pago - MACVASQUEZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --text-main: #0f172a;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #f3f4f6;
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      color: #222;
       margin: 0;
-      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #e0f2fe 0, #f9fafb 60%);
+      color: var(--text-main);
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      padding: 16px;
     }
     .card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.1);
-      padding: 32px;
-      max-width: 420px;
-      text-align: center;
+      background: #ffffff;
+      max-width: 560px;
+      width: 100%;
+      border-radius: 18px;
+      padding: 24px 22px 22px;
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.12),
+        0 0 0 1px rgba(148, 163, 184, 0.12);
     }
-    h2 { margin-top: 0; }
-    .ok { color: #16a34a; }
-    .fail { color: #dc2626; }
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 18px;
-      background: #0ea5e9;
-      color: #fff;
-      border-radius: 8px;
-      text-decoration: none;
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .badge-success {
+      background: #ecfdf3;
+      color: #166534;
+    }
+    .badge-error {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+    .badge span.icon {
+      font-size: 16px;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 14px 0 10px;
+      color: var(--text-main);
+    }
+    p {
+      margin: 0 0 6px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .amount {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 10px 0 4px;
+      color: var(--text-main);
+    }
+    .muted {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 10px;
+    }
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: #1d4ed8;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pill code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+    }
+    .section {
+      border-radius: 14px;
+      border: 1px dashed var(--border);
+      padding: 10px 12px;
+      background: #f9fafb;
+      margin-top: 10px;
+    }
+    .section h2 {
+      font-size: 13px;
+      margin: 0 0 4px;
+      font-weight: 600;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .section p {
+      font-size: 13px;
+      margin: 2px 0;
+    }
+    .status-log {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-radius: 10px;
+      background: #f9fafb;
+      padding: 8px 10px;
+    }
+    .status-log strong {
+      color: #111827;
+    }
+    .btn-row {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      justify-content: center;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px; }
+      h1 { font-size: 19px; }
     }
   </style>
 </head>
 <body>
-  <div class="card" id="contenedor">
-    <h2>Procesando pago...</h2>
-    <p>Por favor, espera un momento.</p>
+  <div class="card" id="root">
+    <!-- Contenido se rellena con JS -->
+    <div id="content">
+      <p style="font-size:14px;color:#6b7280;">Procesando pago…</p>
+    </div>
   </div>
 
-  <script>
-  async function main(){
-    const params = new URLSearchParams(window.location.search);
+<script>
+(function(){
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbw-wKOMth52TeyUP0du_rAh7KIffyExhnu-5oB9rzfKlQJAfIosLcqoqI3wpwbIa-tUQQ/exec";
 
-    // Datos del pago (PayPhone agrega status / idTransaction / amount)
-    const estado = params.get("status") || "Approved";
-    const referencia = params.get("idTransaction") || "N/A";
-    const monto = params.get("amount") || "1.00";
+  function money(v){
+    const n = Number(v || 0);
+    if (!isFinite(n)) return "$0.00";
+    return "$" + (Math.round(n * 100) / 100).toFixed(2);
+  }
 
-    // MUY IMPORTANTE: ID que viene arrastrado desde macvasquez -> index -> gracias
-    let deviceIdFromQuery = params.get("deviceId") || "";
+  function getParams(){
+    const p = new URLSearchParams(window.location.search || "");
+    const obj = {};
+    p.forEach((v,k)=>{ obj[k] = v; });
+    return obj;
+  }
 
-    // Reconstruimos o reutilizamos deviceId
-    let deviceId = deviceIdFromQuery;
-    if (!deviceId) {
-      // intento leer localStorage
-      deviceId = localStorage.getItem('mvDeviceId');
+  function normalizarEstado(rawStatus){
+    if(!rawStatus) return "PENDING";
+    const s = String(rawStatus).toUpperCase();
+    if (s === "APPROVED" || s === "COMPLETED" || s === "SUCCESS") return "APPROVED";
+    if (s === "REJECTED" || s === "FAILED" || s === "CANCELED") return "REJECTED";
+    return s;
+  }
+
+  function buildProductosString(params){
+    // Si index/payphone ya nos envía un 'productos' explícito, lo usamos
+    if (params.productos){
+      return params.productos;
     }
-    if (!deviceId) {
-      // último recurso: generar uno estable (misma lógica que usas en macvasquez)
-      const fp = [
-        navigator.language || '',
-        navigator.platform || '',
-        (screen && screen.width ? screen.width : '0') + 'x' + (screen && screen.height ? screen.height : '0'),
-        new Date().getTimezoneOffset()
-      ].join('-');
-      deviceId = 'mv-' + btoa(fp).replace(/[^a-z0-9]/gi,'').slice(0,10);
+
+    // Caso recarga Ágil: vienen consultas y monto
+    const consultas = params.consultas;
+    const monto     = params.monto;
+    if (consultas && monto){
+      const nombre = encodeURIComponent(`Recarga consultas (${consultas} consultas)`);
+      return `${nombre}|1|${monto}`;
     }
 
-    // Guardar/forzar deviceId en este dominio también
+    // Fallback genérico: un producto con el monto total
+    const amountParam = params.amount || params.monto || "0";
+    // PayPhone normalmente maneja amount en CENTAVOS (ej. 2000 => $20.00)
+    const cents = Number(amountParam);
+    const total = isFinite(cents) ? (cents / 100) : 0;
+    const nombre = encodeURIComponent("Compra en MACVASQUEZ");
+    return `${nombre}|1|${total.toFixed(2)}`;
+  }
+
+  function buildPayphoneData(params){
+    const amountRaw = params.amount || params.monto || "";
+    const cents = Number(amountRaw);
+    const amount = isFinite(cents) ? cents : 0;
+
+    return {
+      // Datos básicos de PayPhone
+      transactionId:       params.idTransaction || params.transactionId || "",
+      transactionStatus:   normalizarEstado(params.status),
+      amount:              amount, // en centavos, igual que llega
+      email:               params.email || params.mail || "",
+      phoneNumber:         params.phone || params.phoneNumber || params.optionalParameter1 || "",
+      reference:           params.reference || "Compra en MACVASQUEZ",
+      clientTransactionId: params.clientTxId || params.clientTransactionId || "",
+      cardBrand:           params.cardBrand || "",
+      authorizationCode:   params.authorizationCode || "",
+      raw:                 params
+    };
+  }
+
+  function renderUI(params, payphoneData){
+    const content = document.getElementById("content");
+    if (!content) return;
+
+    const status = payphoneData.transactionStatus;
+    const approved = (status === "APPROVED");
+
+    const amountInDollars = isFinite(payphoneData.amount)
+      ? (payphoneData.amount / 100)
+      : 0;
+
+    const deviceId = params.deviceId || params.device || "";
+
+    const badgeClass = approved ? "badge badge-success" : "badge badge-error";
+    const badgeText  = approved ? "Pago aprobado" : "Pago no aprobado";
+    const badgeIcon  = approved ? "✅" : "⚠️";
+
+    const title = approved
+      ? "¡Gracias por tu compra!"
+      : "No se pudo completar tu pago";
+
+    const subtitle = approved
+      ? "Estamos registrando tu compra y activando tu acceso."
+      : "Puedes intentar nuevamente o contactar soporte si el cargo aparece en tu banco. 📱 0980914469";
+
+    const txId     = payphoneData.transactionId || "N/D";
+    const ref      = payphoneData.reference || "Compra en MACVASQUEZ";
+    const phone    = payphoneData.phoneNumber || "No proporcionado";
+
+    content.innerHTML = `
+      <div>
+        <div class="${badgeClass}">
+          <span class="icon">${badgeIcon}</span>
+          <span>${badgeText}</span>
+        </div>
+        <h1>${title}</h1>
+        <p>${subtitle}</p>
+
+        <div class="amount">${money(amountInDollars)}</div>
+        <p class="muted">Referencia: <strong>${ref}</strong></p>
+
+        <div class="pill-row">
+          <div class="pill">
+            🧾 <span>ID transacción:</span> <code>${txId}</code>
+          </div>
+          <div class="pill">
+            📱 <span>Teléfono:</span> <code>${phone}</code>
+          </div>
+          ${deviceId ? `
+            <div class="pill">
+              💻 <span>Device ID:</span> <code>${deviceId}</code>
+            </div>` : ""}
+        </div>
+
+        <div class="section">
+          <h2>Qué sigue</h2>
+          <p>Tu compra se está registrando en nuestro sistema.</p>
+          <p>Recibirás un correo con el detalle y códigos de acceso.</p>
+        </div>
+
+        <div class="status-log" id="statusLog">
+          <strong>Estado de registro:</strong> Preparando envío a MACVASQUEZ…
+        </div>
+
+        <div class="btn-row">
+          <a href="https://macvasquez.com/#home" class="btn btn-primary">
+            Volver a macvasquez.com
+          </a>
+          <a href="mailto:info@macvasquez.com" class="btn btn-outline">
+            Contactar soporte
+          </a>
+        </div>
+
+        <div class="hint">
+          Guarda este correo de confirmación y el ID de transacción por si necesitas soporte.
+        </div>
+      </div>
+    `;
+  }
+
+  function updateStatusLog(msg){
+    const log = document.getElementById("statusLog");
+    if (!log) return;
+    log.innerHTML = `<strong>Estado de registro:</strong> ${msg}`;
+  }
+
+  async function sendToGoogleScript(productosStr, payphoneData){
     try {
-      localStorage.setItem('mvDeviceId', deviceId);
-    } catch(_){}
+      updateStatusLog("Enviando datos a MACVASQUEZ…");
 
-    const contenedor = document.getElementById("contenedor");
+      const payload = {
+        productos: productosStr,
+        payphoneData: payphoneData
+        // Si en el futuro quieres también enviar "data" (por ejemplo email directo),
+        // puedes añadir aquí un objeto data: { ... }.
+      };
 
-    // Si el pago fue aprobado, intentamos desbloquear
-    if (estado.toLowerCase() === "approved" || estado.toLowerCase() === "aprobado"){
-      contenedor.innerHTML = `
-        <h2 class="ok" style="color:#16a34a;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <span style="font-size:20px;">✅</span>
-          <span>Pago aprobado</span>
-        </h2>
-        <p>Tu pago fue procesado correctamente. Activando tus consultas…</p>
-        <p><strong>Monto:</strong> $${monto}</p>
-        <p><strong>Referencia:</strong> ${referencia}</p>
-      `;
+      const resp = await fetch(GAS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
 
-      // Llamar a tu backend para marcar este deviceId como pagado
+      const text = await resp.text();
+      let json;
       try {
-        const resp = await fetch("https://macvasquez-quota-lt8rqerln-milton002s-projects.vercel.app/api/quota/unlock", {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "x-device-id": deviceId
-          },
-          body: JSON.stringify({ endpoint: "nombres" })
-        });
-
-        const data = await resp.json();
-        console.log("🔓 Resultado del desbloqueo:", data);
-
-        if (data.ok || data.unlocked) {
-
-          // guardar flag premium en localStorage
-          localStorage.setItem("mv_paid", "1");
-          localStorage.setItem("mv_paid_meta", JSON.stringify({
-            endpoint: "nombres",
-            unlockedAt: new Date().toISOString(),
-            deviceId
-          }));
-
-          contenedor.innerHTML = `
-            <h2 class="ok" style="color:#16a34a;display:flex;align-items:center;justify-content:center;gap:8px;">
-              <span style="font-size:20px;">✅</span>
-              <span>¡Consultas desbloqueadas!</span>
-            </h2>
-
-            <p>Tu pago fue registrado y las consultas de nombres están activas.</p>
-
-            <p><strong>Monto:</strong> $${monto}</p>
-            <p><strong>Referencia:</strong> ${referencia}</p>
-
-            <a class="btn" href="https://www.macvasquez.com#identificacion-nombres">
-              Volver a Consultas
-            </a>
-          `;
-        } else {
-          contenedor.innerHTML += `<p style="color:#dc2626;margin-top:16px;">⚠️ No se pudo confirmar el desbloqueo.</p>`;
-        }
-      } catch (err) {
-        console.error("Error al activar desbloqueo:", err);
-        contenedor.innerHTML += `<p style="color:#dc2626;margin-top:16px;">⚠️ Error al activar desbloqueo.</p>`;
+        json = JSON.parse(text);
+      } catch {
+        json = null;
       }
 
-    } else {
-      // Pago rechazado
-      contenedor.innerHTML = `
-        <h2 class="fail" style="color:#dc2626;">❌ Pago Rechazado</h2>
-        <p>No se pudo completar el pago.</p>
-        <a class="btn" href="https://www.macvasquez.com">
-          Volver
-        </a>
-      `;
+      if (!resp.ok || !json || json.status !== "success") {
+        console.warn("Respuesta Apps Script no OK:", resp.status, text);
+        updateStatusLog("Registrado con observaciones. Si no recibes el correo, contáctanos.");
+        return;
+      }
+
+      updateStatusLog("Registro completado correctamente. Revisa tu correo en unos minutos.");
+    } catch (err) {
+      console.error("Error llamando a Apps Script:", err);
+      updateStatusLog("No se pudo registrar automáticamente. Si no recibes el correo, contáctanos.");
     }
   }
 
-  main();
-  </script>
+  // === MAIN ===
+  document.addEventListener("DOMContentLoaded", function(){
+    const params = getParams();
+    const payphoneData = buildPayphoneData(params);
+
+    // Pintar UI
+    renderUI(params, payphoneData);
+
+    // Solo enviamos a Apps Script si el pago fue aprobado
+    if (payphoneData.transactionStatus === "APPROVED") {
+      const productosStr = buildProductosString(params);
+      sendToGoogleScript(productosStr, payphoneData);
+    } else {
+      updateStatusLog("No se envió a MACVASQUEZ porque el pago no fue aprobado.");
+    }
+  });
+})();
+</script>
 </body>
 </html>
