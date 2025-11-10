@@ -9,22 +9,20 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: transparent;   /* 👈 fondo transparente */
-  display: flex;
-  justify-content: center;
+  background-color: #ffffff;      /* 👈 fondo blanco sólido */
+  display: block;                 /* ya no hace falta flex */
 }
 
-    .payment-container {
-      background: #fff;
-      padding: 18px 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      width: 95%;
-      max-width: 420px;
-      text-align: center;
-      box-sizing: border-box;
-    }
-
+.payment-container {
+  background: transparent;        /* 👈 la card ya no agrega otra capa */
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+  max-width: none;
+  text-align: center;
+  box-sizing: border-box;
+}
     h2 {
       margin: 0 0 8px;
       color: #111827;
@@ -105,7 +103,6 @@
 </head>
 <body>
   <div class="payment-container">
-
     <p class="payment-summary">
       Total a pagar: <span id="totalFinal">$0.00</span>
     </p>
