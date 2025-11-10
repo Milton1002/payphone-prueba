@@ -1,393 +1,208 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Confirmación de pago - MACVASQUEZ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <title>Gracias por tu compra</title>
   <style>
-    :root {
-      --primary: #2563eb;
-      --primary-soft: #eff6ff;
-      --success: #16a34a;
-      --danger: #dc2626;
-      --text-main: #0f172a;
-      --text-muted: #6b7280;
-      --border: #e5e7eb;
-      --bg: #f3f4f6;
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #e0f2fe 0, #f9fafb 60%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .card {
-      background: #ffffff;
-      max-width: 560px;
-      width: 100%;
-      border-radius: 18px;
-      padding: 24px 22px 22px;
-      box-shadow:
-        0 18px 40px rgba(15, 23, 42, 0.12),
-        0 0 0 1px rgba(148, 163, 184, 0.12);
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-    .badge-success {
-      background: #ecfdf3;
-      color: #166534;
-    }
-    .badge-error {
-      background: #fef2f2;
-      color: #b91c1c;
-    }
-    .badge span.icon {
-      font-size: 16px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      padding: 40px;
+      text-align: center;
     }
     h1 {
-      font-size: 22px;
-      margin: 14px 0 10px;
-      color: var(--text-main);
+      color: #27ae60;
     }
-    p {
-      margin: 0 0 6px;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-    .amount {
-      font-size: 20px;
-      font-weight: 700;
-      margin: 10px 0 4px;
-      color: var(--text-main);
-    }
-    .muted {
-      color: var(--text-muted);
-      font-size: 13px;
-    }
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 14px 0 10px;
-    }
-    .pill {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--primary-soft);
-      color: #1d4ed8;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .pill code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 11px;
-    }
-    .section {
-      border-radius: 14px;
-      border: 1px dashed var(--border);
-      padding: 10px 12px;
-      background: #f9fafb;
-      margin-top: 10px;
-    }
-    .section h2 {
-      font-size: 13px;
-      margin: 0 0 4px;
-      font-weight: 600;
-      color: #111827;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-    }
-    .section p {
-      font-size: 13px;
-      margin: 2px 0;
-    }
-    .status-log {
-      margin-top: 14px;
-      font-size: 12px;
-      color: var(--text-muted);
+    .mensaje {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #fff;
       border-radius: 10px;
-      background: #f9fafb;
-      padding: 8px 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .status-log strong {
-      color: #111827;
-    }
-    .btn-row {
-      margin-top: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .btn {
-      border-radius: 999px;
+    .btn-volver {
+      display: inline-block;
+      margin-top: 30px;
+      background-color: #2c3e50;
+      color: white;
+      padding: 12px 24px;
       border: none;
-      padding: 10px 18px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      border-radius: 6px;
+      font-size: 16px;
       text-decoration: none;
-      justify-content: center;
     }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
+    .btn-volver:hover {
+      background-color: #1a252f;
     }
-    .btn-outline {
-      background: transparent;
-      color: var(--text-main);
-      border: 1px solid var(--border);
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
     }
-    .hint {
-      margin-top: 10px;
-      font-size: 11px;
-      color: var(--text-muted);
-      line-height: 1.4;
+    table th, table td {
+      padding: 8px;
+      border: 1px solid #ddd;
     }
-    @media (max-width: 480px) {
-      .card { padding: 20px 16px; }
-      h1 { font-size: 19px; }
+    table th {
+      background-color: #f0f0f0;
+    }
+    .aviso-correo {
+      margin: 25px 0;
+      padding: 15px;
+      background-color: #e3f7e8;
+      border-radius: 8px;
+      border-left: 5px solid #27ae60;
     }
   </style>
 </head>
 <body>
-  <div class="card" id="root">
-    <!-- Contenido se rellena con JS -->
-    <div id="content">
-      <p style="font-size:14px;color:#6b7280;">Procesando pago…</p>
-    </div>
-  </div>
+  <h1>✅ ¡Gracias por tu compra!</h1>
+  <p>Estamos verificando tu pago...</p>
 
-<script>
-(function(){
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbw-wKOMth52TeyUP0du_rAh7KIffyExhnu-5oB9rzfKlQJAfIosLcqoqI3wpwbIa-tUQQ/exec";
+  <div class="mensaje" id="mensaje"></div>
 
-  function money(v){
-    const n = Number(v || 0);
-    if (!isFinite(n)) return "$0.00";
-    return "$" + (Math.round(n * 100) / 100).toFixed(2);
-  }
+  <a class="btn-volver" href="https://www.macvasquez.com">Volver al inicio</a>
 
-  function getParams(){
-    const p = new URLSearchParams(window.location.search || "");
-    const obj = {};
-    p.forEach((v,k)=>{ obj[k] = v; });
-    return obj;
-  }
-
-  function normalizarEstado(rawStatus){
-    if(!rawStatus) return "PENDING";
-    const s = String(rawStatus).toUpperCase();
-    if (s === "APPROVED" || s === "COMPLETED" || s === "SUCCESS") return "APPROVED";
-    if (s === "REJECTED" || s === "FAILED" || s === "CANCELED") return "REJECTED";
-    return s;
-  }
-
-  function buildProductosString(params){
-    // Si index/payphone ya nos envía un 'productos' explícito, lo usamos
-    if (params.productos){
-      return params.productos;
+  <script>
+    function getQueryVariable(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
     }
 
-    // Caso recarga Ágil: vienen consultas y monto
-    const consultas = params.consultas;
-    const monto     = params.monto;
-    if (consultas && monto){
-      const nombre = encodeURIComponent(`Recarga consultas (${consultas} consultas)`);
-      return `${nombre}|1|${monto}`;
-    }
-
-    // Fallback genérico: un producto con el monto total
-    const amountParam = params.amount || params.monto || "0";
-    // PayPhone normalmente maneja amount en CENTAVOS (ej. 2000 => $20.00)
-    const cents = Number(amountParam);
-    const total = isFinite(cents) ? (cents / 100) : 0;
-    const nombre = encodeURIComponent("Compra en MACVASQUEZ");
-    return `${nombre}|1|${total.toFixed(2)}`;
-  }
-
-  function buildPayphoneData(params){
-    const amountRaw = params.amount || params.monto || "";
-    const cents = Number(amountRaw);
-    const amount = isFinite(cents) ? cents : 0;
-
-    return {
-      // Datos básicos de PayPhone
-      transactionId:       params.idTransaction || params.transactionId || "",
-      transactionStatus:   normalizarEstado(params.status),
-      amount:              amount, // en centavos, igual que llega
-      email:               params.email || params.mail || "",
-      phoneNumber:         params.phone || params.phoneNumber || params.optionalParameter1 || "",
-      reference:           params.reference || "Compra en MACVASQUEZ",
-      clientTransactionId: params.clientTxId || params.clientTransactionId || "",
-      cardBrand:           params.cardBrand || "",
-      authorizationCode:   params.authorizationCode || "",
-      raw:                 params
-    };
-  }
-
-  function renderUI(params, payphoneData){
-    const content = document.getElementById("content");
-    if (!content) return;
-
-    const status = payphoneData.transactionStatus;
-    const approved = (status === "APPROVED");
-
-    const amountInDollars = isFinite(payphoneData.amount)
-      ? (payphoneData.amount / 100)
-      : 0;
-
-    const deviceId = params.deviceId || params.device || "";
-
-    const badgeClass = approved ? "badge badge-success" : "badge badge-error";
-    const badgeText  = approved ? "Pago aprobado" : "Pago no aprobado";
-    const badgeIcon  = approved ? "✅" : "⚠️";
-
-    const title = approved
-      ? "¡Gracias por tu compra!"
-      : "No se pudo completar tu pago";
-
-    const subtitle = approved
-      ? "Estamos registrando tu compra y activando tu acceso."
-      : "Puedes intentar nuevamente o contactar soporte si el cargo aparece en tu banco. 📱 0980914469";
-
-    const txId     = payphoneData.transactionId || "N/D";
-    const ref      = payphoneData.reference || "Compra en MACVASQUEZ";
-    const phone    = payphoneData.phoneNumber || "No proporcionado";
-
-    content.innerHTML = `
-      <div>
-        <div class="${badgeClass}">
-          <span class="icon">${badgeIcon}</span>
-          <span>${badgeText}</span>
-        </div>
-        <h1>${title}</h1>
-        <p>${subtitle}</p>
-
-        <div class="amount">${money(amountInDollars)}</div>
-        <p class="muted">Referencia: <strong>${ref}</strong></p>
-
-        <div class="pill-row">
-          <div class="pill">
-            🧾 <span>ID transacción:</span> <code>${txId}</code>
-          </div>
-          <div class="pill">
-            📱 <span>Teléfono:</span> <code>${phone}</code>
-          </div>
-          ${deviceId ? `
-            <div class="pill">
-              💻 <span>Device ID:</span> <code>${deviceId}</code>
-            </div>` : ""}
-        </div>
-
-        <div class="section">
-          <h2>Qué sigue</h2>
-          <p>Tu compra se está registrando en nuestro sistema.</p>
-          <p>Recibirás un correo con el detalle y códigos de acceso.</p>
-        </div>
-
-        <div class="status-log" id="statusLog">
-          <strong>Estado de registro:</strong> Preparando envío a MACVASQUEZ…
-        </div>
-
-        <div class="btn-row">
-          <a href="https://macvasquez.com/#home" class="btn btn-primary">
-            Volver a macvasquez.com
-          </a>
-          <a href="mailto:info@macvasquez.com" class="btn btn-outline">
-            Contactar soporte
-          </a>
-        </div>
-
-        <div class="hint">
-          Guarda este correo de confirmación y el ID de transacción por si necesitas soporte.
-        </div>
-      </div>
-    `;
-  }
-
-  function updateStatusLog(msg){
-    const log = document.getElementById("statusLog");
-    if (!log) return;
-    log.innerHTML = `<strong>Estado de registro:</strong> ${msg}`;
-  }
-
-  async function sendToGoogleScript(productosStr, payphoneData){
-    try {
-      updateStatusLog("Enviando datos a MACVASQUEZ…");
-
-      const payload = {
-        productos: productosStr,
-        payphoneData: payphoneData
-        // Si en el futuro quieres también enviar "data" (por ejemplo email directo),
-        // puedes añadir aquí un objeto data: { ... }.
-      };
-
-      const resp = await fetch(GAS_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+    function parseProductos(productosStr) {
+      if (!productosStr) return [];
+      return productosStr.split(',').map(item => {
+        const [nombre, cantidad, precio] = item.split('|');
+        return {
+          nombre: decodeURIComponent(nombre),
+          cantidad: parseInt(cantidad),
+          precio: parseFloat(precio)
+        };
       });
+    }
 
-      const text = await resp.text();
-      let json;
+    function mostrarProductos(productos, container) {
+      if (productos.length === 0) return;
+
+      let total = 0;
+      let html = `
+        <h3>🛒 Productos comprados:</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      productos.forEach(p => {
+        const subtotal = p.cantidad * p.precio;
+        total += subtotal;
+        html += `
+          <tr>
+            <td>${p.nombre}</td>
+            <td>${p.cantidad}</td>
+            <td>$${p.precio.toFixed(2)}</td>
+            <td>$${subtotal.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+      html += `
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="3">Total</th><th>$${total.toFixed(2)}</th>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+      container.innerHTML += html;
+    }
+
+    async function enviarAScriptGoogle(payload) {
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbxfDsqFyc1qtztsXukZqnT5LE97GpPe94JD7tmzfuam1jB4YjflzYobjNkdDnjHPJnwZw/exec";
+
       try {
-        json = JSON.parse(text);
-      } catch {
-        json = null;
+        const res = await fetch(scriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload })
+        });
+        return await res.json();
+      } catch (e) {
+        // fallback a GET si falla POST
+        const img = document.createElement('img');
+        img.src = scriptUrl + "?payload=" + encodeURIComponent(JSON.stringify(payload));
+        img.style.display = 'none';
+        document.body.appendChild(img);
+        return { method: "GET fallback" };
       }
+    }
 
-      if (!resp.ok || !json || json.status !== "success") {
-        console.warn("Respuesta Apps Script no OK:", resp.status, text);
-        updateStatusLog("Registrado con observaciones. Si no recibes el correo, contáctanos.");
-        return;
+    const id = getQueryVariable("id");
+    const clientTxId = getQueryVariable("clientTransactionId");
+    const productosParam = getQueryVariable("productos");
+    const email = getQueryVariable("email");
+
+    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
+
+    fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
+      body: JSON.stringify({
+        id: Number(id),
+        clientTxId: clientTxId
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const contenedor = document.getElementById("mensaje");
+
+      if (data.transactionStatus === "Approved") {
+        contenedor.innerHTML = `
+          <h2 style="color:#27ae60;">✔️ ¡Pago Aprobado!</h2>
+          <p>Tu compra fue procesada exitosamente.</p>
+          <div class="aviso-correo">
+            <p>En unos minutos recibirás un mensaje con tus claves de acceso a: <strong>${email || data.email || ""}</strong></p>
+            <p>Recuerda revisar tu bandeja de entrada y la carpeta de spam.</p>
+          </div>
+        `;
+
+        const productos = parseProductos(productosParam);
+        mostrarProductos(productos, contenedor);
+
+        const payload = {
+          id: id,
+          clientTransactionId: clientTxId,
+          email: email || data.email || "",
+          productos: productosParam || "",
+          transactionDate: new Date().toISOString(),
+          payphoneData: data
+        };
+
+        enviarAScriptGoogle(payload).then(res => {
+          console.log("Registrado en Google Sheet:", res);
+        });
+
+      } else {
+        contenedor.innerHTML = `
+          <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
+          <p>Hubo un problema con tu transacción. Por favor intenta nuevamente o contacta con soporte.</p>
+        `;
       }
-
-      updateStatusLog("Registro completado correctamente. Revisa tu correo en unos minutos.");
-    } catch (err) {
-      console.error("Error llamando a Apps Script:", err);
-      updateStatusLog("No se pudo registrar automáticamente. Si no recibes el correo, contáctanos.");
-    }
-  }
-
-  // === MAIN ===
-  document.addEventListener("DOMContentLoaded", function(){
-    const params = getParams();
-    const payphoneData = buildPayphoneData(params);
-
-    // Pintar UI
-    renderUI(params, payphoneData);
-
-    // Solo enviamos a Apps Script si el pago fue aprobado
-    if (payphoneData.transactionStatus === "APPROVED") {
-      const productosStr = buildProductosString(params);
-      sendToGoogleScript(productosStr, payphoneData);
-    } else {
-      updateStatusLog("No se envió a MACVASQUEZ porque el pago no fue aprobado.");
-    }
-  });
-})();
-</script>
+    })
+    .catch(error => {
+      document.getElementById("mensaje").innerHTML = `
+        <h2 style="color:#e67e22;">⚠️ Error de verificación</h2>
+        <p>No se pudo verificar el pago. Intenta nuevamente más tarde.</p>
+      `;
+    });
+  </script>
 </body>
 </html>
