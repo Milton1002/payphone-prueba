@@ -8,7 +8,7 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 40px 0;
+      padding: 16px 0;
       background-color: #f2f4f8;
       display: flex;
       justify-content: center;
@@ -16,24 +16,25 @@
 
     .payment-container {
       background: #fff;
-      padding: 30px;
+      padding: 18px 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       width: 95%;
-      max-width: 480px;
+      max-width: 420px;
       text-align: center;
+      box-sizing: border-box;
     }
 
     h2 {
-      margin-bottom: 10px;
-      color: #2c3e50;
-      font-size: 22px;
+      margin: 0 0 8px;
+      color: #111827;
+      font-size: 18px;
     }
 
     .payment-summary {
-      font-size: 15px;
+      font-size: 14px;
       color: #4b5563;
-      margin-bottom: 20px;
+      margin: 4px 0 16px;
     }
 
     .payment-summary span {
@@ -46,10 +47,10 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: #ffffff;
       color: #2c3e50;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: bold;
       border: 2px solid #ff6c00;
       border-radius: 8px;
@@ -59,11 +60,11 @@
       cursor: pointer;
       width: 100%;
       box-sizing: border-box;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .payment-button img {
-      height: 26px;
+      height: 24px;
       transition: filter 0.3s ease;
     }
 
@@ -80,61 +81,39 @@
     .cards-image {
       display: flex;
       justify-content: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .cards-image img {
-      max-height: 40px;
+      max-height: 32px;
       opacity: 0.9;
       filter: grayscale(100%) brightness(0.8);
     }
 
     .info-text {
-      font-size: 13px;
+      font-size: 11px;
       color: #6b7280;
-      margin-top: 8px;
+      margin: 0;
     }
 
-    .loader {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(0,0,0,.1);
-      border-radius: 50%;
-      border-top-color: #00a6e8;
-      animation: spin 1s ease-in-out infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .status {
-      font-size: 14px;
-      color: #4b5563;
-      margin-bottom: 18px;
-    }
-
-    .status.error {
+    .error-text {
+      font-size: 12px;
       color: #e74c3c;
+      margin: 8px 0 0;
     }
   </style>
 </head>
 <body>
   <div class="payment-container">
+    <h2>Pagar con PayPhone</h2>
 
     <p class="payment-summary">
       Total a pagar: <span id="totalFinal">$0.00</span>
     </p>
 
-    <p class="status" id="statusText">
-      <span class="loader"></span>
-      Preparando enlace de pago seguro...
-    </p>
-
-    <div id="botones" style="text-align:center;"></div>
+    <div id="botones">
+      <!-- Aquí se pintará el botón de PayPhone -->
+    </div>
 
     <div class="cards-image">
       <img src="https://pay.payphonetodoesposible.com/Content/imgv3/btnIconAllCard.svg" alt="Tarjetas aceptadas">
@@ -143,6 +122,8 @@
     <p class="info-text">
       Pago seguro con tarjetas Visa, Mastercard, Diners y Discover.
     </p>
+
+    <p id="errorText" class="error-text" style="display:none;"></p>
   </div>
 
   <script>
@@ -154,24 +135,24 @@
 
     let total = 0;
 
-    // Si vienen productos detallados, recalculamos total
     if (productosParam) {
       const productos = productosParam.split(',');
       productos.forEach(prod => {
         const [nombre, cantidad, precio] = prod.split('|');
-        const itemTotal = (parseFloat(cantidad) || 0) * (parseFloat(precio) || 0);
+        const itemTotal =
+          (parseFloat(cantidad) || 0) * (parseFloat(precio) || 0);
         total += itemTotal;
       });
     }
 
-    // Si el total calculado es válido, usamos ese valor;
-    // si no, usamos el parámetro monto.
     if (total > 0) {
-      document.getElementById('totalFinal').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('totalFinal').textContent =
+        `$${total.toFixed(2)}`;
       montoCentavos = total * 100;
     } else {
       const montoNum = parseFloat(montoCentavos) || 0;
-      document.getElementById('totalFinal').textContent = `$${montoNum.toFixed(2)}`;
+      document.getElementById('totalFinal').textContent =
+        `$${montoNum.toFixed(2)}`;
       montoCentavos = montoNum * 100;
     }
 
@@ -185,9 +166,8 @@
       "Authorization": token,
     };
 
-    // 3. Armamos la ResponseUrl que PayPhone va a abrir al final.
-    //    Le pasamos también deviceId para que gracias.html sepa cuál ID desbloquear.
-    const responseUrlBase = "https://milton1002.github.io/payphone-prueba/gracias.html";
+    const responseUrlBase =
+      "https://milton1002.github.io/payphone-prueba/gracias.html";
     const responseUrlParams = new URLSearchParams({
       productos: productosParam || "",
       deviceId: deviceId || ""
@@ -198,7 +178,10 @@
       amountWithoutTax: parseInt(montoCentavos),
       amountWithTax: 0,
       tax: 0,
-      reference: "Compra en MACVASQUEZ - " + (productosParam ? decodeURIComponent(productosParam.split(',')[0].split('|')[0]) : "Productos"),
+      reference: "Compra en MACVASQUEZ - " +
+        (productosParam
+          ? decodeURIComponent(productosParam.split(',')[0].split('|')[0])
+          : "Productos"),
       currency: "USD",
       clientTransactionId: transactionId,
       storeId: storeId,
@@ -206,9 +189,9 @@
     };
 
     const botonesContainer = document.getElementById("botones");
-    const statusText = document.getElementById("statusText");
+    const errorText = document.getElementById("errorText");
 
-    // 4. Crear botón de pago con PayPhone
+    // 3. Crear botón de pago con PayPhone
     fetch("https://pay.payphonetodoesposible.com/api/button/Prepare", {
       method: "POST",
       headers: headers,
@@ -216,10 +199,8 @@
     })
     .then(res => res.json())
     .then(data => {
-      botonesContainer.innerHTML = '';
+      botonesContainer.innerHTML = "";
       if (data.payWithCard) {
-        statusText.textContent = "Todo listo. Completa tu pago de forma segura con PayPhone.";
-
         const btnCard = document.createElement("a");
         btnCard.className = "payment-button";
         btnCard.href = data.payWithCard;
@@ -231,15 +212,17 @@
         `;
         botonesContainer.appendChild(btnCard);
       } else {
-        statusText.classList.add("error");
-        statusText.textContent = "Error al generar enlace de pago. Intenta nuevamente.";
+        errorText.style.display = "block";
+        errorText.textContent =
+          "Error al generar el enlace de pago. Intenta nuevamente.";
       }
     })
     .catch(error => {
       console.error(error);
-      botonesContainer.innerHTML = '';
-      statusText.classList.add("error");
-      statusText.textContent = "Error de conexión al preparar el pago. Revisa tu conexión e inténtalo otra vez.";
+      botonesContainer.innerHTML = "";
+      errorText.style.display = "block";
+      errorText.textContent =
+        "Error de conexión al preparar el pago. Revisa tu conexión e inténtalo otra vez.";
     });
   </script>
 </body>
