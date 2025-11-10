@@ -41,25 +41,27 @@
     }
 
     .payment-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px 16px;
-      background: #ffffff;
-      color: #2c3e50;
-      font-size: 16px;
-      font-weight: bold;
-      border: 2px solid #ff6c00;
-      border-radius: 8px;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 12px;
-    }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: #ffffff;
+  color: #2c3e50;
+  font-size: 15px;
+  font-weight: bold;
+  border: 2px solid #ff6c00;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: auto;           /* 👈 ya no full width */
+  max-width: 340px;      /* tope para que no se dispare */
+  box-sizing: border-box;
+  margin: 0 auto 12px;   /* centrado */
+}
+
 
     .payment-button img {
       height: 24px;
@@ -223,3 +225,4 @@
   </script>
 </body>
 </html>
+
