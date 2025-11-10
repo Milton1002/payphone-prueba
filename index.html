@@ -4,105 +4,104 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pagar con PayPhone</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #ffffff;   /* fondo blanco sólido */
-    display: block;
-  }
+  <style>
+    body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;      /* 👈 fondo blanco sólido */
+  display: block;                 /* ya no hace falta flex */
+}
 
-  .payment-container {
-    background: transparent;
-    padding: 4px 0 2px;          /* 👈 un poquito de aire arriba/abajo */
-    border-radius: 0;
-    box-shadow: none;
-    width: 100%;
-    max-width: none;
-    text-align: center;
-    box-sizing: border-box;
-  }
+.payment-container {
+  background: transparent;        /* 👈 la card ya no agrega otra capa */
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+  max-width: none;
+  text-align: center;
+  box-sizing: border-box;
+}
+    h2 {
+      margin: 0 0 8px;
+      color: #111827;
+      font-size: 18px;
+    }
 
-  h2 {
-    margin: 0 0 8px;
-    color: #111827;
-    font-size: 18px;
-  }
+    .payment-summary {
+      font-size: 14px;
+      color: #4b5563;
+      margin: 4px 0 16px;
+    }
 
-  .payment-summary {
-    font-size: 14px;
-    color: #4b5563;
-    margin: 0 0 8px;            /* 👈 antes 4px 0 16px */
-  }
+    .payment-summary span {
+      font-weight: 600;
+      color: #111827;
+    }
 
-  .payment-summary span {
-    font-weight: 600;
-    color: #111827;
-  }
+    .payment-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: #ffffff;
+  color: #2c3e50;
+  font-size: 15px;
+  font-weight: bold;
+  border: 2px solid #ff6c00;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: auto;           /* 👈 ya no full width */
+  max-width: 340px;      /* tope para que no se dispare */
+  box-sizing: border-box;
+  margin: 0 auto 12px;   /* centrado */
+}
 
-  .payment-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px 18px;
-    background: #ffffff;
-    color: #2c3e50;
-    font-size: 15px;
-    font-weight: bold;
-    border: 2px solid #ff6c00;
-    border-radius: 8px;
-    text-decoration: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    width: auto;                /* ya no full width */
-    max-width: 340px;
-    box-sizing: border-box;
-    margin: 0 auto 8px;         /* 👈 menos espacio debajo del botón */
-  }
 
-  .payment-button img {
-    height: 24px;
-    transition: filter 0.3s ease;
-  }
+    .payment-button img {
+      height: 24px;
+      transition: filter 0.3s ease;
+    }
 
-  .payment-button:hover {
-    background: #ff6c00;
-    color: #ffffff;
-    transform: scale(1.02);
-  }
+    .payment-button:hover {
+      background: #ff6c00;
+      color: #ffffff;
+      transform: scale(1.02);
+    }
 
-  .payment-button:hover img {
-    filter: brightness(0) invert(1);
-  }
+    .payment-button:hover img {
+      filter: brightness(0) invert(1);
+    }
 
-  .cards-image {
-    display: flex;
-    justify-content: center;
-    margin: 2px 0 2px;         /* 👈 margen muy pequeño */
-  }
+    .cards-image {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
 
-  .cards-image img {
-    max-height: 28px;          /* un pelín más pequeño */
-    opacity: 0.9;
-    filter: grayscale(100%) brightness(0.8);
-  }
+    .cards-image img {
+      max-height: 32px;
+      opacity: 0.9;
+      filter: grayscale(100%) brightness(0.8);
+    }
 
-  .info-text {
-    font-size: 11px;
-    color: #6b7280;
-    margin: 0 0 2px;           /* 👈 sin espacio extra abajo */
-    line-height: 1.2;
-  }
+    .info-text {
+      font-size: 11px;
+      color: #6b7280;
+      margin: 0;
+    }
 
-  .error-text {
-    font-size: 12px;
-    color: #e74c3c;
-    margin: 4px 0 0;           /* menos espacio si aparece */
-  }
-</style>
+    .error-text {
+      font-size: 12px;
+      color: #e74c3c;
+      margin: 8px 0 0;
+    }
+  </style>
 </head>
 <body>
   <div class="payment-container">
