@@ -66,145 +66,158 @@
 
   <a class="btn-volver" href="https://www.macvasquez.com">Volver al inicio</a>
 
-  <script>
-    function getQueryVariable(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
+<script>
+  function getQueryVariable(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
 
-    function parseProductos(productosStr) {
-      if (!productosStr) return [];
-      return productosStr.split(',').map(item => {
-        const [nombre, cantidad, precio] = item.split('|');
-        return {
-          nombre: decodeURIComponent(nombre),
-          cantidad: parseInt(cantidad),
-          precio: parseFloat(precio)
-        };
-      });
-    }
+  function parseProductos(productosStr) {
+    if (!productosStr) return [];
+    return productosStr.split(',').map(item => {
+      const [nombre, cantidad, precio] = item.split('|');
+      return {
+        nombre: decodeURIComponent(nombre),
+        cantidad: parseInt(cantidad),
+        precio: parseFloat(precio)
+      };
+    });
+  }
 
-    function mostrarProductos(productos, container) {
-      if (productos.length === 0) return;
+  function mostrarProductos(productos, container) {
+    if (productos.length === 0) return;
 
-      let total = 0;
-      let html = `
-        <h3>🛒 Productos comprados:</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-      productos.forEach(p => {
-        const subtotal = p.cantidad * p.precio;
-        total += subtotal;
-        html += `
+    let total = 0;
+    let html = `
+      <h3>🛒 Productos comprados:</h3>
+      <table>
+        <thead>
           <tr>
-            <td>${p.nombre}</td>
-            <td>${p.cantidad}</td>
-            <td>$${p.precio.toFixed(2)}</td>
-            <td>$${subtotal.toFixed(2)}</td>
+            <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th>
           </tr>
-        `;
-      });
+        </thead>
+        <tbody>
+    `;
+    productos.forEach(p => {
+      const subtotal = p.cantidad * p.precio;
+      total += subtotal;
       html += `
-          </tbody>
-          <tfoot>
-            <tr>
-              <th colspan="3">Total</th><th>$${total.toFixed(2)}</th>
-            </tr>
-          </tfoot>
-        </table>
-      `;
-      container.innerHTML += html;
-    }
-
-    async function enviarAScriptGoogle(payload) {
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbx4K2tojouYbj_ZQzT_B3N1fO_GD6pxlsvrknweTJ1rDgYFdD4cy8nIeu6Bqd-F8_vRBw/exec";
-
-      try {
-        const res = await fetch(scriptUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ payload })
-        });
-        return await res.json();
-      } catch (e) {
-        // fallback a GET si falla POST
-        const img = document.createElement('img');
-        img.src = scriptUrl + "?payload=" + encodeURIComponent(JSON.stringify(payload));
-        img.style.display = 'none';
-        document.body.appendChild(img);
-        return { method: "GET fallback" };
-      }
-    }
-
-    const id = getQueryVariable("id");
-    const clientTxId = getQueryVariable("clientTransactionId");
-    const productosParam = getQueryVariable("productos");
-    const email = getQueryVariable("email");
-
-    const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
-
-    fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token
-      },
-      body: JSON.stringify({
-        id: Number(id),
-        clientTxId: clientTxId
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      const contenedor = document.getElementById("mensaje");
-
-      if (data.transactionStatus === "Approved") {
-        contenedor.innerHTML = `
-          <h2 style="color:#27ae60;">✔️ ¡Pago Aprobado!</h2>
-          <p>Tu compra fue procesada exitosamente.</p>
-          <div class="aviso-correo">
-            <p>En unos minutos recibirás un mensaje con tus claves de acceso a: <strong>${email || data.email || ""}</strong></p>
-            <p>Recuerda revisar tu bandeja de entrada y la carpeta de spam.</p>
-          </div>
-        `;
-
-        const productos = parseProductos(productosParam);
-        mostrarProductos(productos, contenedor);
-
-        const payload = {
-          id: id,
-          clientTransactionId: clientTxId,
-          email: email || data.email || "",
-          productos: productosParam || "",
-          transactionDate: new Date().toISOString(),
-          payphoneData: data
-        };
-
-        enviarAScriptGoogle(payload).then(res => {
-          console.log("Registrado en Google Sheet:", res);
-        });
-
-      } else {
-        contenedor.innerHTML = `
-          <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
-          <p>Hubo un problema con tu transacción. Por favor intenta nuevamente o contacta con soporte.</p>
-        `;
-      }
-    })
-    .catch(error => {
-      document.getElementById("mensaje").innerHTML = `
-        <h2 style="color:#e67e22;">⚠️ Error de verificación</h2>
-        <p>No se pudo verificar el pago. Intenta nuevamente más tarde.</p>
+        <tr>
+          <td>${p.nombre}</td>
+          <td>${p.cantidad}</td>
+          <td>$${p.precio.toFixed(2)}</td>
+          <td>$${subtotal.toFixed(2)}</td>
+        </tr>
       `;
     });
-  </script>
+    html += `
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3">Total</th><th>$${total.toFixed(2)}</th>
+          </tr>
+        </tfoot>
+      </table>
+    `;
+    container.innerHTML += html;
+  }
+
+  async function enviarAScriptGoogle(payload) {
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbx4K2tojouYbj_ZQzT_B3N1fO_GD6pxlsvrknweTJ1rDgYFdD4cy8nIeu6Bqd-F8_vRBw/exec";
+
+    try {
+      const res = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload })
+      });
+      return await res.json();
+    } catch (e) {
+      // fallback a GET si falla POST
+      const img = document.createElement('img');
+      img.src = scriptUrl + "?payload=" + encodeURIComponent(JSON.stringify(payload));
+      img.style.display = 'none';
+      document.body.appendChild(img);
+      return { method: "GET fallback" };
+    }
+  }
+
+  const id = getQueryVariable("id");
+  const clientTxId = getQueryVariable("clientTransactionId");
+  const productosParam = getQueryVariable("productos");
+  const email = getQueryVariable("email");
+
+  const token = "Bearer OyVLzij-fpLpyYslzFH3cD86SZieQkMj18D36ibqIA0nYnZUHj3mrmGae-UCGc_5LvAQy-LngYEmi5yRqs9aO2UyQ4CITagKa5ng1rpuWZnx9ksf2Ki4NER_FWY3kxhQcu8tGlxGc6csS-q0R1Cvioe8fiNPcTwZBYHZ-cd0QlJtJRk0M1J4SWHxdSnqZszZ4bATNtB6xdNK93Ak-E8Jrnrv_vhCVMxNpttYue63qdyQq5kAd-vuRLBXAVDAl9f_sb7UtuY8EQRorhW074PRSFgJ7fjSPkY7I_jc9gakIXb1oQuEZ9X9UXPp1OcqS4VEACurCFMdp7eQwHpNe9_NgflubsQ";
+
+  fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token
+    },
+    body: JSON.stringify({
+      id: Number(id),
+      clientTxId: clientTxId
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    const contenedor = document.getElementById("mensaje");
+
+    if (data.transactionStatus === "Approved") {
+      contenedor.innerHTML = `
+        <h2 style="color:#27ae60;">✔️ ¡Pago Aprobado!</h2>
+        <p>Tu compra fue procesada exitosamente.</p>
+        <div class="aviso-correo">
+          <p>En unos minutos recibirás un mensaje con tus claves de acceso a: <strong>${email || data.email || ""}</strong></p>
+          <p>Recuerda revisar tu bandeja de entrada y la carpeta de spam.</p>
+        </div>
+      `;
+
+      const productos = parseProductos(productosParam);
+      mostrarProductos(productos, contenedor);
+
+      const payload = {
+        id: id,
+        clientTransactionId: clientTxId,
+        email: email || data.email || "",
+        productos: productosParam || "",
+        transactionDate: new Date().toISOString(),
+        payphoneData: data
+      };
+
+      enviarAScriptGoogle(payload).then(res => {
+        console.log("Registrado en Google Sheet:", res);
+      });
+
+    } else {
+      contenedor.innerHTML = `
+        <h2 style="color:#e74c3c;">❌ Pago No Aprobado</h2>
+        <p>Hubo un problema con tu transacción. Por favor intenta nuevamente o contacta con soporte.</p>
+      `;
+    }
+
+    // Limpiar la URL después de procesar
+    if (window.history && window.history.replaceState) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  })
+  .catch(error => {
+    document.getElementById("mensaje").innerHTML = `
+      <h2 style="color:#e67e22;">⚠️ Error de verificación</h2>
+      <p>No se pudo verificar el pago. Intenta nuevamente más tarde.</p>
+    `;
+
+    // También limpiamos la URL en caso de error
+    if (window.history && window.history.replaceState) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  });
+</script>
 </body>
 </html>
+
 
 
