@@ -4,12 +4,11 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    // --- CORS / Origen permitido (opcional pero recomendado) ---
+    // --- CORS recomendado (lista blanca) ---
     const allowList = (process.env.NX_ALLOWED_ORIGINS || "")
       .split(",")
       .map(s => s.trim())
       .filter(Boolean);
-
     const origin = req.headers.origin || "";
     if (allowList.length && !allowList.includes(origin)) {
       return res.status(403).json({ error: "Origin not allowed" });
@@ -18,32 +17,32 @@ export default async function handler(req, res) {
     const { productos = "", monto = 0, deviceId = "" } = req.body || {};
 
     const PAY_BASE = process.env.NX_NODE || "https://pay.payphonetodoesposible.com";
-    const AUTH = process.env.NX_BRIDGE;
-    const STORE = process.env.NX_STORE;
+    const AUTH = process.env.NX_BRIDGE;   // Bearer ***
+    const STORE = process.env.NX_STORE;   // storeId
     const PUBLIC_BASE = process.env.NX_GATE || "https://pagos.macvasquez.com";
 
     if (!AUTH || !STORE) {
       return res.status(500).json({ error: "Misconfiguration" });
     }
 
-    // monto en dólares → centavos (enteros)
+    // monto USD → centavos
     const amountCents = Math.max(0, Math.round(Number(monto) * 100));
     if (!amountCents) {
       return res.status(400).json({ error: "Monto inválido" });
     }
 
-    // ID único de cliente (no secreto)
+    // ID no sensible
     const clientTransactionId = `${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
 
-    // Construimos la URL de retorno (order-status.html) con info NO sensible
-    const respParams = new URLSearchParams({
+    // Construir ResponseUrl (redirección a order-status con datos NO sensibles)
+    const params = new URLSearchParams({
       productos: productos || "",
       deviceId: deviceId || "",
       clientTransactionId
     });
-    const ResponseUrl = `${PUBLIC_BASE.replace(/\/+$/, "")}/order-status.html?${respParams.toString()}`;
+    const ResponseUrl = `${PUBLIC_BASE.replace(/\/+$/, "")}/order-status.html?${params.toString()}`;
 
-    // Referencia legible (opcional)
+    // Referencia legible (similar a tu index.html original)
     const refName = (() => {
       try {
         const first = decodeURIComponent((productos || "").split(",")[0] || "");
@@ -54,7 +53,7 @@ export default async function handler(req, res) {
       }
     })();
 
-    // Payload para PayPhone Prepare
+    // Payload PayPhone
     const payload = {
       amount: amountCents,
       amountWithoutTax: amountCents,
@@ -77,12 +76,10 @@ export default async function handler(req, res) {
     });
 
     const data = await r.json().catch(() => ({}));
-
     if (!r.ok || !data) {
       return res.status(502).json({ error: "Error al preparar pago", detail: data || null });
     }
 
-    // Normalizamos la respuesta
     const payUrl = data.payWithCard || data.payWithCardDirect || null;
     if (!payUrl) {
       return res.status(502).json({ error: "El proveedor no devolvió URL de pago", detail: data || null });
