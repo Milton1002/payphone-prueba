@@ -1,111 +1,200 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Pagar con PayPhone — MACVASQUEZ</title>
-<style>
-  body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#fff; color:#111; }
-  .wrap { max-width: 640px; margin: 24px auto; padding: 16px; }
-  .card { background:#fff; border:1px solid rgba(17,24,39,.08); border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,.06); padding:20px; }
-  h1 { font-size: 1.25rem; margin: 0 0 12px; }
-  .muted { color:#6B7280; font-size:.95rem; }
-  .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-  .pill { background:#F3F4F6; border-radius:999px; padding:6px 12px; font-size:.9rem; }
-  .payment-button { display:inline-flex; align-items:center; gap:8px; padding:12px 18px; border-radius:12px; border:1px solid rgba(17,24,39,.1); text-decoration:none; }
-  .payment-button:hover { background:#F9FAFB; }
-  .center { text-align:center; }
-  .spacer { height: 12px; }
-  .error { color:#B91C1C; font-weight:600; }
-  .ok { color:#065F46; font-weight:600; }
-  .btn-primary { display:inline-block; padding:12px 16px; border-radius:12px; background:#0EA5E9; color:#fff; text-decoration:none; }
-  .btn-primary:disabled { opacity:.6; }
-  img.logo { height: 18px; vertical-align:middle; }
-  code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pagar con PayPhone</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      display: block;
+    }
+    .payment-container {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
+      width: 100%;
+      max-width: none;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    h2 {
+      margin: 0 0 8px;
+      color: #111827;
+      font-size: 18px;
+    }
+    .payment-summary {
+      font-size: 14px;
+      color: #4b5563;
+      margin: 4px 0 16px;
+    }
+    .payment-summary span {
+      font-weight: 600;
+      color: #111827;
+    }
+    .payment-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: #ffffff;
+      color: #2c3e50;
+      font-size: 15px;
+      font-weight: bold;
+      border: 2px solid #ff6c00;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      width: auto;
+      max-width: 340px;
+      box-sizing: border-box;
+      margin: 0 auto 12px;
+    }
+    .payment-button img {
+      height: 24px;
+      transition: filter 0.3s ease;
+    }
+    .payment-button:hover {
+      background: #ff6c00;
+      color: #ffffff;
+      transform: scale(1.02);
+    }
+    .payment-button:hover img {
+      filter: brightness(0) invert(1);
+    }
+    .cards-image {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .cards-image img {
+      max-height: 32px;
+      opacity: 0.9;
+      filter: grayscale(100%) brightness(0.8);
+    }
+    .info-text {
+      font-size: 11px;
+      color: #6b7280;
+      margin: 0;
+    }
+    .error-text {
+      font-size: 12px;
+      color: #e74c3c;
+      margin: 8px 0 0;
+    }
+    .muted { color:#6B7280; font-size:.95rem; }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Pago con PayPhone</h1>
-      <p class="muted">Revisa el detalle y continúa para completar tu pago de forma segura.</p>
-      <div id="detalle" class="row"></div>
-      <div class="spacer"></div>
-      <div class="center">
-        <div id="botones">
-          <button id="crearBtn" class="btn-primary">Generar enlace de pago</button>
-        </div>
-        <div class="spacer"></div>
-        <div id="estado" class="muted"></div>
-        <div id="errorText" class="error"></div>
-      </div>
+  <div class="payment-container">
+    <p class="payment-summary">
+      Total a pagar: <span id="totalFinal">$0.00</span>
+    </p>
+
+    <div id="botones">
+      <!-- Aquí se pintará el botón de PayPhone -->
+      <button id="crearBtn" class="payment-button" type="button">
+        Generar enlace de pago
+        <img src="https://pay.payphonetodoesposible.com/Content/imgv3/payphone-h.svg" alt="PayPhone Logo">
+      </button>
+      <div id="estado" class="muted" style="margin-top:6px;"></div>
     </div>
+
+    <div class="cards-image">
+      <img src="https://pay.payphonetodoesposible.com/Content/imgv3/btnIconAllCard.svg" alt="Tarjetas aceptadas">
+    </div>
+
+    <p class="info-text">
+      Pago seguro con tarjetas Visa, Mastercard, Diners y Discover.
+    </p>
+
+    <p id="errorText" class="error-text" style="display:none;"></p>
   </div>
 
-<script>
-(function(){
-  const qs = new URLSearchParams(location.search);
-  const productos = qs.get("productos") || "";
-  const monto = parseFloat(qs.get("monto") || "0") || 0;
-  const deviceId = qs.get("deviceId") || "";
+  <script>
+    // 1) Leer parámetros como tu versión original
+    const urlParams = new URLSearchParams(window.location.search);
+    let montoParam = urlParams.get('monto') || 0;
+    const productosParam = urlParams.get('productos') || "";
+    const deviceId = urlParams.get('deviceId') || "";
 
-  // Muestra breve detalle
-  const detalle = document.getElementById("detalle");
-  if (productos) detalle.appendChild(chip("Productos", decodeURIComponent(productos)));
-  detalle.appendChild(chip("Monto", `$${monto.toFixed(2)}`));
-  if (deviceId) detalle.appendChild(chip("Device", deviceId));
-
-  function chip(label, value){
-    const span = document.createElement("span");
-    span.className = "pill";
-    span.textContent = `${label}: ${value}`;
-    return span;
-  }
-
-  async function crearBotonPago() {
-    setEstado("Generando enlace seguro…");
-    setError("");
-
-    try {
-      const res = await fetch("/api/create-payment.js".replace(/\.js$/,""), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productos, monto, deviceId })
+    // 2) Calcular total (como hacías)
+    let total = 0;
+    if (productosParam) {
+      const productos = productosParam.split(',');
+      productos.forEach(prod => {
+        const [nombre, cantidad, precio] = prod.split('|');
+        total += (parseFloat(cantidad)||0) * (parseFloat(precio)||0);
       });
-
-      const j = await res.json();
-      if (!res.ok) throw j;
-
-      const { url, clientTransactionId } = j;
-      if (!url) throw { error: "No se recibió URL de pago." };
-
-      const cont = document.getElementById("botones");
-      cont.innerHTML = "";
-
-      const a = document.createElement("a");
-      a.className = "payment-button";
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.innerHTML = `Pagar ahora con <img class="logo" src="https://pay.payphonetodoesposible.com/Content/imgv3/payphone-h.svg" alt="PayPhone">`;
-      cont.appendChild(a);
-
-      setEstado(`Enlace generado. ID transacción: ${clientTransactionId}`);
-    } catch (e) {
-      console.error(e);
-      setError(e?.error || "Error al preparar el pago");
-      setEstado("");
     }
-  }
+    if (total > 0) {
+      document.getElementById('totalFinal').textContent = `$${total.toFixed(2)}`;
+    } else {
+      const montoNum = parseFloat(montoParam) || 0;
+      document.getElementById('totalFinal').textContent = `$${montoNum.toFixed(2)}`;
+      total = montoNum;
+    }
 
-  function setEstado(t){ document.getElementById("estado").textContent = t || ""; }
-  function setError(t){ document.getElementById("errorText").textContent = t || ""; }
+    const botonesContainer = document.getElementById("botones");
+    const errorText = document.getElementById("errorText");
+    const estado = document.getElementById("estado");
+    const crearBtn = document.getElementById("crearBtn");
 
-  document.getElementById("crearBtn").addEventListener("click", crearBotonPago);
+    function setError(msg){
+      errorText.style.display = msg ? "block" : "none";
+      errorText.textContent = msg || "";
+    }
+    function setEstado(msg){ estado.textContent = msg || ""; }
 
-  // Opcional: auto-generar enlace al cargar
-  // crearBotonPago();
-})();
-</script>
+    async function crearEnlacePago() {
+      try {
+        setError(""); setEstado("Generando enlace seguro…");
+
+        const res = await fetch("/api/create-payment.js".replace(/\.js$/,""), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productos: productosParam || "",
+            monto: total,
+            deviceId: deviceId || ""
+          })
+        });
+
+        const j = await res.json();
+        if (!res.ok) throw j;
+
+        const { url, clientTransactionId } = j;
+        if (!url) throw { error: "No se recibió URL de pago." };
+
+        // Pintar botón (o redirigir si prefieres)
+        botonesContainer.innerHTML = "";
+        const a = document.createElement("a");
+        a.className = "payment-button";
+        a.href = url; a.target = "_blank"; a.rel = "noopener";
+        a.innerHTML = `
+          Pagar ahora con
+          <img src="https://pay.payphonetodoesposible.com/Content/imgv3/payphone-h.svg" alt="PayPhone Logo">
+        `;
+        botonesContainer.appendChild(a);
+
+        setEstado(`Listo. Transacción: ${clientTransactionId}`);
+
+      } catch (e) {
+        console.error(e);
+        setError(e?.error || "Error al preparar el pago. Intenta nuevamente.");
+        setEstado("");
+      }
+    }
+
+    crearBtn.addEventListener("click", crearEnlacePago);
+    // Si quieres generarlo automáticamente: crearEnlacePago();
+  </script>
 </body>
 </html>
