@@ -1,16 +1,31 @@
+// /api/create-payment.js
+// Serverless (Vercel, Node 18+). Crea el Prepare y devuelve el enlace de pago.
+// Incluye: CORS flexible + LOGS de diagnóstico del proveedor (PayPhone).
+
 export default async function handler(req, res) {
   try {
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    // --- CORS recomendado (lista blanca) ---
+    // --- CORS recomendado (lista blanca flexible) ---
     const allowList = (process.env.NX_ALLOWED_ORIGINS || "")
       .split(",")
       .map(s => s.trim())
       .filter(Boolean);
-    const origin = req.headers.origin || "";
-    if (allowList.length && !allowList.includes(origin)) {
+
+    // Permite el propio host (preview/prod) para no bloquearse a sí mismo
+    const selfOrigin = `https://${req.headers.host}`;
+    if (!allowList.includes(selfOrigin)) allowList.push(selfOrigin);
+
+    const origin = (req.headers.origin || "").toLowerCase();
+    function isAllowed(originStr) {
+      if (!allowList.length) return true;   // si no definiste nada, permitir
+      if (!originStr) return true;          // si no viene header Origin, permitir
+      const o = originStr.replace(/\/$/, "");
+      return allowList.some(a => o === a.toLowerCase().replace(/\/$/, ""));
+    }
+    if (!isAllowed(origin)) {
       return res.status(403).json({ error: "Origin not allowed" });
     }
 
@@ -22,12 +37,14 @@ export default async function handler(req, res) {
     const PUBLIC_BASE = process.env.NX_GATE || "https://pagos.macvasquez.com";
 
     if (!AUTH || !STORE) {
+      console.error("[Prepare] Misconfiguration: falta NX_BRIDGE o NX_STORE");
       return res.status(500).json({ error: "Misconfiguration" });
     }
 
     // monto USD → centavos
     const amountCents = Math.max(0, Math.round(Number(monto) * 100));
     if (!amountCents) {
+      console.error("[Prepare] Monto inválido (cents):", amountCents, "monto recibido:", monto);
       return res.status(400).json({ error: "Monto inválido" });
     }
 
@@ -42,7 +59,7 @@ export default async function handler(req, res) {
     });
     const ResponseUrl = `${PUBLIC_BASE.replace(/\/+$/, "")}/order-status.html?${params.toString()}`;
 
-    // Referencia legible (similar a tu index.html original)
+    // Referencia legible
     const refName = (() => {
       try {
         const first = decodeURIComponent((productos || "").split(",")[0] || "");
@@ -53,7 +70,6 @@ export default async function handler(req, res) {
       }
     })();
 
-    // Payload PayPhone
     const payload = {
       amount: amountCents,
       amountWithoutTax: amountCents,
@@ -66,6 +82,7 @@ export default async function handler(req, res) {
       ResponseUrl
     };
 
+    // --- Llamada al proveedor con LOGS de diagnóstico ---
     const r = await fetch(`${PAY_BASE}/api/button/Prepare`, {
       method: "POST",
       headers: {
@@ -75,17 +92,23 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload)
     });
 
-    const data = await r.json().catch(() => ({}));
+    // Lee texto crudo para log (por si no es JSON válido)
+    const rawText = await r.text();
+    let data;
+    try { data = JSON.parse(rawText); } catch { data = null; }
+
+    console.error("[Prepare] status:", r.status, "body:", (rawText || "").slice(0, 500));
+
     if (!r.ok || !data) {
-      return res.status(502).json({ error: "Error al preparar pago", detail: data || null });
+      return res.status(502).json({ error: "Error al preparar pago", detail: data || rawText || null });
     }
 
     const payUrl = data.payWithCard || data.payWithCardDirect || null;
     if (!payUrl) {
+      console.error("[Prepare] Missing payWithCard/payWithCardDirect. data:", data);
       return res.status(502).json({ error: "El proveedor no devolvió URL de pago", detail: data || null });
     }
 
-    // Respuesta segura al cliente
     return res.status(200).json({
       url: payUrl,
       clientTransactionId
