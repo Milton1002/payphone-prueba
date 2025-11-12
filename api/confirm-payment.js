@@ -4,12 +4,11 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    // --- CORS / Origen permitido (opcional pero recomendado) ---
+    // --- CORS recomendado ---
     const allowList = (process.env.NX_ALLOWED_ORIGINS || "")
       .split(",")
       .map(s => s.trim())
       .filter(Boolean);
-
     const origin = req.headers.origin || "";
     if (allowList.length && !allowList.includes(origin)) {
       return res.status(403).json({ error: "Origin not allowed" });
@@ -29,7 +28,7 @@ export default async function handler(req, res) {
 
     const payload = {
       id: Number(id),
-      clientTxId: clientTxId
+      clientTxId
     };
 
     const r = await fetch(`${PAY_BASE}/api/button/V2/Confirm`, {
@@ -42,12 +41,11 @@ export default async function handler(req, res) {
     });
 
     const data = await r.json().catch(() => ({}));
-
     if (!r.ok) {
       return res.status(502).json({ error: "Error del proveedor al confirmar", detail: data || null });
     }
 
-    // Solo regresamos lo necesario (estado, montos, email, etc.)
+    // Regresamos lo necesario para que el front pueda registrar en GAS
     return res.status(200).json({ ok: true, data });
 
   } catch (err) {
