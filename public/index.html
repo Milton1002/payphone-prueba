@@ -22,11 +22,6 @@
       text-align: center;
       box-sizing: border-box;
     }
-    h2 {
-      margin: 0 0 8px;
-      color: #111827;
-      font-size: 18px;
-    }
     .payment-summary {
       font-size: 14px;
       color: #4b5563;
@@ -99,7 +94,6 @@
     </p>
 
     <div id="botones">
-      <!-- Aquí se pintará el botón de PayPhone -->
       <button id="crearBtn" class="payment-button" type="button">
         Generar enlace de pago
         <img src="https://pay.payphonetodoesposible.com/Content/imgv3/payphone-h.svg" alt="PayPhone Logo">
@@ -119,105 +113,111 @@
   </div>
 
   <script>
-  const urlParams = new URLSearchParams(window.location.search);
-  let montoParam = urlParams.get('monto') || 0;
-  const productosParam = urlParams.get('productos') || "";
-  const deviceId = urlParams.get('deviceId') || "";
-  const debugMode = urlParams.has('debug'); // ?debug=1 activa panel
+    const urlParams = new URLSearchParams(window.location.search);
+    let montoParam = urlParams.get('monto') || 0;
+    const productosParam = urlParams.get('productos') || "";
+    const deviceId = urlParams.get('deviceId') || "";
+    const debugMode = urlParams.has('debug'); // activa panel de depuración
 
-  let total = 0;
-  if (productosParam) {
-    const productos = productosParam.split(',');
-    productos.forEach(prod => {
-      const [nombre, cantidad, precio] = prod.split('|');
-      total += (parseFloat(cantidad)||0) * (parseFloat(precio)||0);
-    });
-  }
-  if (total > 0) {
-    document.getElementById('totalFinal').textContent = `$${total.toFixed(2)}`;
-  } else {
-    const montoNum = parseFloat(montoParam) || 0;
-    document.getElementById('totalFinal').textContent = `$${montoNum.toFixed(2)}`;
-    total = montoNum;
-  }
-
-  const wrap = document.querySelector(".payment-container");
-  const botonesContainer = document.getElementById("botones");
-  const errorText = document.getElementById("errorText");
-  const estado = document.getElementById("estado");
-  const crearBtn = document.getElementById("crearBtn");
-
-  function setError(msg){
-    errorText.style.display = msg ? "block" : "none";
-    errorText.textContent = msg || "";
-  }
-  function setEstado(msg){ estado.textContent = msg || ""; }
-
-  function renderDebugTable(debug) {
-    if (!debug) return;
-    const cont = document.createElement("div");
-    cont.style.marginTop = "14px";
-    cont.style.fontSize = "12px";
-    cont.style.textAlign = "left";
-    cont.style.overflowX = "auto";
-    const rows = Object.entries(debug).map(([k,v])=>{
-      const val = typeof v === 'object' ? JSON.stringify(v) : String(v);
-      return `<tr><th style="text-align:left;white-space:nowrap;padding:6px;border:1px solid #e5e7eb;background:#f9fafb">${k}</th>
-                  <td style="padding:6px;border:1px solid #e5e7eb">${val}</td></tr>`;
-    }).join("");
-    cont.innerHTML = `
-      <div style="margin:6px 0;color:#6B7280">Panel de depuración (sin secretos). Quita <code>?debug=1</code> para ocultarlo.</div>
-      <table style="border-collapse:collapse;width:100%;max-width:100%;">
-        ${rows}
-      </table>
-    `;
-    wrap.appendChild(cont);
-  }
-
-  async function crearEnlacePago() {
-    try {
-      setError(""); setEstado("Generando enlace seguro…");
-
-      const res = await fetch("/api/create-payment".concat(debugMode ? "?debug=1" : ""), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...(debugMode ? {"X-Debug":"1"} : {}) },
-        body: JSON.stringify({
-          productos: productosParam || "",
-          monto: total,
-          deviceId: deviceId || ""
-        })
+    // Calcular total
+    let total = 0;
+    if (productosParam) {
+      const productos = productosParam.split(',');
+      productos.forEach(prod => {
+        const [nombre, cantidad, precio] = prod.split('|');
+        total += (parseFloat(cantidad)||0) * (parseFloat(precio)||0);
       });
-
-      const j = await res.json().catch(()=>({}));
-      if (debugMode) renderDebugTable(j.__debug);
-
-      if (!res.ok) throw j;
-
-      const { url, clientTransactionId } = j;
-      if (!url) throw { error: "No se recibió URL de pago." };
-
-      botonesContainer.innerHTML = "";
-      const a = document.createElement("a");
-      a.className = "payment-button";
-      a.href = url; a.target = "_blank"; a.rel = "noopener";
-      a.innerHTML = `
-        Pagar ahora con
-        <img src="https://pay.payphonetodoesposible.com/Content/imgv3/payphone-h.svg" alt="PayPhone Logo">
-      `;
-      botonesContainer.appendChild(a);
-
-      setEstado(`Listo. Transacción: ${clientTransactionId}`);
-
-    } catch (e) {
-      console.error(e);
-      setError(e?.error || "Error al preparar el pago. Intenta nuevamente.");
-      setEstado("");
     }
-  }
+    if (total > 0) {
+      document.getElementById('totalFinal').textContent = `$${total.toFixed(2)}`;
+    } else {
+      const montoNum = parseFloat(montoParam) || 0;
+      document.getElementById('totalFinal').textContent = `$${montoNum.toFixed(2)}`;
+      total = montoNum;
+    }
 
-  document.getElementById("crearBtn").addEventListener("click", crearEnlacePago);
-</script>
+    const wrap = document.querySelector(".payment-container");
+    const botonesContainer = document.getElementById("botones");
+    const errorText = document.getElementById("errorText");
+    const estado = document.getElementById("estado");
+    const crearBtn = document.getElementById("crearBtn");
 
+    function setError(msg){
+      errorText.style.display = msg ? "block" : "none";
+      errorText.textContent = msg || "";
+    }
+    function setEstado(msg){ estado.textContent = msg || ""; }
+
+    // Tabla de depuración (solo con ?debug=1)
+    function renderDebugTable(debug) {
+      if (!debug) return;
+      const cont = document.createElement("div");
+      cont.style.marginTop = "14px";
+      cont.style.fontSize = "12px";
+      cont.style.textAlign = "left";
+      cont.style.overflowX = "auto";
+      const replacer = (_k, v) => v;
+      const pretty = (v) => {
+        try { return typeof v === 'string' ? v : JSON.stringify(v, replacer, 2); }
+        catch { return String(v); }
+      };
+      const rows = Object.entries(debug).map(([k,v])=>{
+        const val = pretty(v);
+        return `<tr>
+          <th style="text-align:left;white-space:nowrap;padding:6px;border:1px solid #e5e7eb;background:#f9fafb">${k}</th>
+          <td style="padding:6px;border:1px solid #e5e7eb"><pre style="margin:0;white-space:pre-wrap;word-break:break-word;">${val}</pre></td>
+        </tr>`;
+      }).join("");
+      cont.innerHTML = `
+        <div style="margin:6px 0;color:#6B7280">
+          Panel de depuración (sin secretos). Quita <code>?debug=1</code> para ocultarlo.
+        </div>
+        <table style="border-collapse:collapse;width:100%;max-width:100%;">${rows}</table>
+      `;
+      wrap.appendChild(cont);
+    }
+
+    async function crearEnlacePago() {
+      try {
+        setError(""); setEstado("Generando enlace seguro…");
+
+        const res = await fetch("/api/create-payment".concat(debugMode ? "?debug=1" : ""), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(debugMode ? {"X-Debug":"1"} : {}) },
+          body: JSON.stringify({
+            productos: productosParam || "",
+            monto: total,
+            deviceId: deviceId || ""
+          })
+        });
+
+        const j = await res.json().catch(()=>({}));
+        if (debugMode) renderDebugTable(j.__debug);
+
+        if (!res.ok) throw j;
+
+        const { url, clientTransactionId } = j;
+        if (!url) throw { error: "No se recibió URL de pago." };
+
+        botonesContainer.innerHTML = "";
+        const a = document.createElement("a");
+        a.className = "payment-button";
+        a.href = url; a.target = "_blank"; a.rel = "noopener";
+        a.innerHTML = `
+          Pagar ahora con
+          <img src="https://pay.payphonetodoesposible.com/Content/imgv3/payphone-h.svg" alt="PayPhone Logo">
+        `;
+        botonesContainer.appendChild(a);
+
+        setEstado(`Listo. Transacción: ${clientTransactionId}`);
+      } catch (e) {
+        console.error(e);
+        setError(e?.error || "Error al preparar el pago. Intenta nuevamente.");
+        setEstado("");
+      }
+    }
+
+    crearBtn.addEventListener("click", crearEnlacePago);
+  </script>
 </body>
 </html>
-
